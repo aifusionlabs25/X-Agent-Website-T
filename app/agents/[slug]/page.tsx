@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ALL_AGENTS } from '@/lib/agents';
-import { ExternalLink } from 'lucide-react';
+import AgentDemoButton from '@/components/AgentDemoButton';
 
 interface Props {
     params: Promise<{ slug: string }>;
@@ -32,11 +32,16 @@ export default async function AgentDetailPage({ params }: Props) {
 
                 {/* Poster + info overlay */}
                 <div className="absolute bottom-0 left-0 right-0 px-8 md:px-16 pb-8 flex items-end gap-6">
-                    <div
-                        className="relative w-28 h-40 md:w-36 md:h-52 rounded-lg overflow-hidden flex-shrink-0 border-2 shadow-2xl"
-                        style={{ borderColor: agent.accentColor }}
-                    >
-                        <Image src={agent.thumbnailSrc} alt={agent.name} fill className="object-cover" sizes="200px" />
+                    <div className="flex flex-col gap-3 flex-shrink-0">
+                        <div
+                            className="relative w-28 h-40 md:w-36 md:h-52 rounded-lg overflow-hidden border-2 shadow-2xl"
+                            style={{ borderColor: agent.accentColor }}
+                        >
+                            <Image src={agent.thumbnailSrc} alt={agent.name} fill className="object-cover" sizes="200px" />
+                        </div>
+
+                        {/* Interactive Client CTA */}
+                        <AgentDemoButton agent={agent} />
                     </div>
                     <div>
                         <span
@@ -81,22 +86,6 @@ export default async function AgentDetailPage({ params }: Props) {
                     ))}
                 </div>
 
-                {/* CTA */}
-                {agent.liveUrl ? (
-                    <a
-                        href={agent.liveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 bg-white hover:bg-zinc-100 text-black font-bold px-7 py-3 rounded-md transition-colors"
-                    >
-                        <ExternalLink size={16} />
-                        Launch Live Demo
-                    </a>
-                ) : (
-                    <div className="inline-flex items-center gap-2 bg-zinc-800 text-zinc-500 px-7 py-3 rounded-md cursor-not-allowed text-sm">
-                        Coming Soon
-                    </div>
-                )}
 
                 <div className="mt-6">
                     <Link href="/#agents" className="text-zinc-500 hover:text-white text-sm transition-colors">

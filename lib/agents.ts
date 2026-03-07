@@ -10,7 +10,7 @@ export const ALL_AGENTS: AgentData[] = [
         role: 'X-Agent Sales Technician',
         thumbnailSrc: '/agents/hero/dani-hero-wide.jpg', // crop of hero until dani thumbnail added
         accentColor: '#6366f1',
-        liveUrl: 'http://localhost:3000/demo',
+        liveUrl: 'https://dani-x-agent.vercel.app/',
     },
     {
         slug: 'james',
@@ -18,6 +18,7 @@ export const ALL_AGENTS: AgentData[] = [
         role: 'X-Agent Legal Intake',
         thumbnailSrc: '/agents/thumbnails/james-intake.jpg',
         accentColor: '#3b82f6',
+        liveUrl: 'https://james.aifusionlabs.app/',
     },
     {
         slug: 'morgan',
@@ -25,6 +26,7 @@ export const ALL_AGENTS: AgentData[] = [
         role: 'X-Agent Field Service',
         thumbnailSrc: '/agents/thumbnails/morgan-field-service.jpg',
         accentColor: '#10b981',
+        liveUrl: 'https://x-agent-app.vercel.app/',
     },
     {
         slug: 'amy',
@@ -32,6 +34,7 @@ export const ALL_AGENTS: AgentData[] = [
         role: 'X-Agent SDR',
         thumbnailSrc: '/agents/thumbnails/amy-sdr.jpg',
         accentColor: '#ec4899',
+        liveUrl: 'https://amy-insight-sdr.vercel.app/',
     },
     {
         slug: 'luna',
@@ -46,6 +49,7 @@ export const ALL_AGENTS: AgentData[] = [
         role: 'X-Agent SDR',
         thumbnailSrc: '/agents/thumbnails/sarah-netic-sdr.jpg',
         accentColor: '#f59e0b',
+        liveUrl: 'https://netic-sarah-app.vercel.app/',
     },
 ];
 
