@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Info, ArrowRight } from 'lucide-react';
+import { Play, ArrowRight } from 'lucide-react';
 import GhostlyBackground from './GhostlyBackground';
 import TavusPlayer from '@/components/TavusPlayer';
 import { ALL_AGENTS } from '@/lib/agents';

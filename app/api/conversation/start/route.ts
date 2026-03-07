@@ -15,8 +15,8 @@ export async function POST(request: Request) {
             ...data,
             startedAt,
         });
-    } catch (err: any) {
+    } catch (err: unknown) {
         console.error("Error creating conversation:", err);
-        return NextResponse.json({ error: err.message || "Failed to create conversation" }, { status: 500 });
+        return NextResponse.json({ error: err instanceof Error ? err.message : "Failed to create conversation" }, { status: 500 });
     }
 }

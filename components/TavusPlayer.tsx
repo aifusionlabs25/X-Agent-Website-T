@@ -68,9 +68,9 @@ export default function TavusPlayer({ onClose }: Props) {
                 // 4) Join instantly! (prompts user for mic/camera permissions)
                 await callFrame.join({ url });
 
-            } catch (e: any) {
+            } catch (e: unknown) {
                 if (isMounted) {
-                    setError(e.message);
+                    setError(e instanceof Error ? e.message : 'An unknown error occurred');
                     setLoading(false);
                 }
             }

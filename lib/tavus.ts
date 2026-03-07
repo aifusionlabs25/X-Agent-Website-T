@@ -1,7 +1,7 @@
 import { cfg } from "./config";
 
 export async function createConversation(callbackUrl?: string) {
-    const body: any = {
+    const body: Record<string, unknown> = {
         persona_id: cfg.personaId,
         custom_greeting:
             "Hey, welcome. I am Dani. Thanks for dropping in. What are you most curious about today.",
