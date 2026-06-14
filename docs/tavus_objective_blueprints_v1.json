@@ -1,0 +1,269 @@
+{
+  "version": 1,
+  "generated_for": "AI Fusion Labs X Agents",
+  "generated_at_local": "2026-06-14",
+  "notes": [
+    "These are draft implementation blueprints, not yet created in Tavus.",
+    "Account read-only check showed zero existing Tavus objectives and zero guardrails.",
+    "Create objectives first with POST /v2/objectives, then patch the target persona with objectives_id.",
+    "Keep the current harness active while piloting Tavus Objectives."
+  ],
+  "agents": {
+    "amy": {
+      "persona_id": "pf3a086d0109",
+      "replica_id": "re3a705cf66a",
+      "graph_id": "amy_insight_frontdoor_v1",
+      "priority": 1,
+      "fit": "excellent",
+      "purpose": "Insight SDR discovery, qualification, and specialist routing.",
+      "objectives": [
+        {
+          "objective_name": "amy_intro_scope",
+          "objective_prompt": "Briefly establish Amy's role as Insight's front-door discovery representative. Confirm the user understands Amy can answer at a high level, understand what they are evaluating, and route toward the right Insight specialist path without promising pricing, scheduling, implementation, or backend action.",
+          "confirmation_mode": "auto",
+          "output_variables": ["user_understanding_confirmed"],
+          "modality": "verbal",
+          "next_required_objective": "amy_need_assessment"
+        },
+        {
+          "objective_name": "amy_need_assessment",
+          "objective_prompt": "Determine the visitor's practical need. Capture business goal, current environment shape, main pain or risk, and which lane best fits: modernization, security/proof, procurement/buying path, or general routing.",
+          "confirmation_mode": "auto",
+          "output_variables": ["business_goal", "current_environment", "main_pain_or_risk", "inquiry_lane"],
+          "modality": "verbal",
+          "next_conditional_objectives": {
+            "amy_modernization_path": "if visitor asks about infrastructure, cloud, data center, workplace technology, managed services, modernization, or operational pressure",
+            "amy_security_proof_path": "if visitor asks about security, compliance, case studies, proof, monitoring, controls, or credibility",
+            "amy_procurement_path": "if visitor asks about first steps, buying path, procurement friction, commercial process, or stakeholder routing",
+            "amy_general_routing_path": "for all other real but not yet specific needs"
+          }
+        },
+        {
+          "objective_name": "amy_modernization_path",
+          "objective_prompt": "Capture the modernization priority, highest-risk workload or decision, and urgency driver. Do not invent architecture, tools, staffing, timing, or migration plans.",
+          "confirmation_mode": "auto",
+          "output_variables": ["modernization_priority", "highest_risk_workload", "urgency_driver"],
+          "modality": "verbal",
+          "next_required_objective": "amy_routing_summary"
+        },
+        {
+          "objective_name": "amy_security_proof_path",
+          "objective_prompt": "Capture the security or compliance question, requested proof type, and risk concern. Do not claim private case studies, certifications, controls, tooling, or legal/compliance advice unless verified.",
+          "confirmation_mode": "auto",
+          "output_variables": ["security_or_compliance_need", "requested_material_or_proof_type", "risk_concern"],
+          "modality": "verbal",
+          "next_required_objective": "amy_routing_summary"
+        },
+        {
+          "objective_name": "amy_procurement_path",
+          "objective_prompt": "Capture the buying-path concern, stakeholder context, and what would make a first specialist conversation useful. Do not claim a meeting was booked or assigned.",
+          "confirmation_mode": "auto",
+          "output_variables": ["buying_path_concern", "stakeholder_or_role_context", "first_specialist_conversation_value"],
+          "modality": "verbal",
+          "next_required_objective": "amy_routing_summary"
+        },
+        {
+          "objective_name": "amy_general_routing_path",
+          "objective_prompt": "Capture one or two routing facts such as business goal, decision criterion, problem owner, urgency, or proof needed. Do not force a long qualification form.",
+          "confirmation_mode": "auto",
+          "output_variables": ["decision_criterion", "problem_owner", "routing_gap"],
+          "modality": "verbal",
+          "next_required_objective": "amy_routing_summary"
+        },
+        {
+          "objective_name": "amy_routing_summary",
+          "objective_prompt": "Close with a concise routing summary: known need, likely specialist lane, useful proof or review item, unverified items, and safest next step. Do not claim Amy has scheduled, sent, assigned, forwarded, or started anything.",
+          "confirmation_mode": "auto",
+          "output_variables": ["routable_summary", "recommended_specialist_lane", "unverified_items", "safe_next_step"],
+          "modality": "verbal"
+        }
+      ]
+    },
+    "james": {
+      "persona_id": "pcb7189e1a4c",
+      "replica_id": "r873e4707689",
+      "graph_id": "james_legal_intake_v1",
+      "priority": 2,
+      "fit": "excellent_with_guardrails",
+      "purpose": "Compassionate personal injury intake with attorney handoff summary.",
+      "recommended_guardrails": [
+        "no_legal_advice",
+        "no_case_value",
+        "no_representation_promise",
+        "emergency_redirect"
+      ],
+      "objectives": [
+        {
+          "objective_name": "james_open_intake",
+          "objective_prompt": "Establish James's intake role, invite the caller to describe what happened, and capture the caller's primary reason for contacting the firm.",
+          "confirmation_mode": "auto",
+          "output_variables": ["caller_reason", "initial_emotional_state"],
+          "modality": "verbal",
+          "next_required_objective": "james_incident_basics"
+        },
+        {
+          "objective_name": "james_incident_basics",
+          "objective_prompt": "Collect the basic incident facts: incident type, approximate date, location, and a concise description of what happened.",
+          "confirmation_mode": "auto",
+          "output_variables": ["incident_type", "incident_date", "incident_location", "incident_summary"],
+          "modality": "verbal",
+          "next_required_objective": "james_injury_and_treatment"
+        },
+        {
+          "objective_name": "james_injury_and_treatment",
+          "objective_prompt": "Collect whether anyone was injured, what injuries were mentioned, whether medical treatment happened, and whether more treatment is scheduled.",
+          "confirmation_mode": "auto",
+          "output_variables": ["injury_summary", "medical_treatment_status", "upcoming_treatment", "severity_signal"],
+          "modality": "verbal",
+          "next_required_objective": "james_liability_context"
+        },
+        {
+          "objective_name": "james_liability_context",
+          "objective_prompt": "Collect basic liability context without giving legal advice: what the caller believes caused the incident, whether police or incident reports exist, witnesses, insurance, and whether the caller already has a lawyer.",
+          "confirmation_mode": "auto",
+          "output_variables": ["liability_context", "report_status", "witness_status", "insurance_context", "already_represented"],
+          "modality": "verbal",
+          "next_required_objective": "james_case_route"
+        },
+        {
+          "objective_name": "james_case_route",
+          "objective_prompt": "Determine the safest intake route: attorney_review, more_information_needed, outside_scope, or emergency_support. Base this only on conversation facts and do not provide legal advice or case value.",
+          "confirmation_mode": "auto",
+          "output_variables": ["intake_route", "route_reason", "risk_factors"],
+          "modality": "verbal",
+          "next_conditional_objectives": {
+            "james_consult_next_step": "if facts suggest attorney review may be useful or caller is unsure",
+            "james_more_info_next_step": "if key facts are missing but the matter could still be relevant",
+            "james_outside_scope_next_step": "if matter appears outside the firm's likely intake scope",
+            "james_emergency_next_step": "if caller describes immediate danger, medical emergency, or urgent safety issue"
+          }
+        },
+        {
+          "objective_name": "james_consult_next_step",
+          "objective_prompt": "Offer a consultation next step without promising representation, outcome, legal advice, or case value. Capture preferred contact method and contact details if the caller is willing.",
+          "confirmation_mode": "auto",
+          "output_variables": ["preferred_contact_method", "lead_name", "lead_email", "lead_phone", "consult_interest"],
+          "modality": "verbal",
+          "next_required_objective": "james_safe_close"
+        },
+        {
+          "objective_name": "james_more_info_next_step",
+          "objective_prompt": "Summarize what is known and what is still missing. Ask for the single most important missing fact needed for attorney review.",
+          "confirmation_mode": "auto",
+          "output_variables": ["known_facts", "missing_facts", "priority_missing_fact"],
+          "modality": "verbal",
+          "next_required_objective": "james_safe_close"
+        },
+        {
+          "objective_name": "james_outside_scope_next_step",
+          "objective_prompt": "Respond respectfully if the issue appears outside scope. Do not reject harshly or give legal advice. Capture a safe summary and suggest the caller may need an appropriate attorney or emergency help depending on facts.",
+          "confirmation_mode": "auto",
+          "output_variables": ["outside_scope_reason", "safe_referral_language"],
+          "modality": "verbal",
+          "next_required_objective": "james_safe_close"
+        },
+        {
+          "objective_name": "james_emergency_next_step",
+          "objective_prompt": "If there is immediate danger or medical emergency, urge the caller to contact emergency services or seek urgent medical care. Do not continue routine intake until safety is addressed.",
+          "confirmation_mode": "auto",
+          "output_variables": ["emergency_signal", "safety_instruction_acknowledged"],
+          "modality": "verbal",
+          "next_required_objective": "james_safe_close"
+        },
+        {
+          "objective_name": "james_safe_close",
+          "objective_prompt": "Close with a compassionate summary of facts collected, the safe next step, and any unverified items. Do not say the firm accepted the case, do not value the case, and do not provide legal advice.",
+          "confirmation_mode": "auto",
+          "output_variables": ["case_summary", "safe_next_step", "unverified_items", "james_action"],
+          "modality": "verbal"
+        }
+      ]
+    },
+    "dani": {
+      "persona_id": "p54f4fa92ba2",
+      "replica_id": "r7ed486ceba0",
+      "graph_id": "dani_xagent_discovery_v1",
+      "priority": 3,
+      "fit": "medium_high_keep_flexible",
+      "purpose": "X Agent product/demo guide, lead-quality consultant, and safe next-step mapper.",
+      "objectives": [
+        {
+          "objective_name": "dani_welcome_scope",
+          "objective_prompt": "Establish Dani as the AI Fusion Labs X Agent guide. Confirm the user understands this is a live demo and invite them to share what they are curious about.",
+          "confirmation_mode": "auto",
+          "output_variables": ["demo_scope_confirmed", "initial_interest"],
+          "modality": "verbal",
+          "next_required_objective": "dani_interest_classification"
+        },
+        {
+          "objective_name": "dani_interest_classification",
+          "objective_prompt": "Determine the user's main interest: lead qualification, support intake, operations automation, Tavus/video experience, backend integration, pricing/business fit, or general curiosity.",
+          "confirmation_mode": "auto",
+          "output_variables": ["interest_lane", "business_context", "main_question"],
+          "modality": "verbal",
+          "next_conditional_objectives": {
+            "dani_lead_quality_path": "if user asks about sales, lead quality, qualification, conversion, follow-up, CRM, or handoff",
+            "dani_support_intake_path": "if user asks about support, repetitive questions, triage, service tickets, or intake routing",
+            "dani_ops_automation_path": "if user asks about operations, manual work, forms, scheduling, or backend workflows",
+            "dani_platform_explainer_path": "if user asks about Tavus, X Agents, video AI, objectives, or how the platform works",
+            "dani_general_path": "for general curiosity or unclear intent"
+          }
+        },
+        {
+          "objective_name": "dani_lead_quality_path",
+          "objective_prompt": "Capture the user's sales or lead-quality pain, current source page or channel, current handoff problem, and one useful success metric. Avoid repeating the same one-page-test framing more than once.",
+          "confirmation_mode": "auto",
+          "output_variables": ["lead_quality_pain", "source_page_or_channel", "handoff_problem", "success_metric"],
+          "modality": "verbal",
+          "next_required_objective": "dani_next_step_summary"
+        },
+        {
+          "objective_name": "dani_support_intake_path",
+          "objective_prompt": "Capture the repeated support or intake problem, current triage path, escalation need, and what a successful handoff would include.",
+          "confirmation_mode": "auto",
+          "output_variables": ["support_problem", "current_triage_path", "escalation_need", "handoff_requirement"],
+          "modality": "verbal",
+          "next_required_objective": "dani_next_step_summary"
+        },
+        {
+          "objective_name": "dani_ops_automation_path",
+          "objective_prompt": "Capture the manual workflow, where work stalls, which system or team receives the handoff, and what backend action might matter later. Do not claim that backend action has been configured.",
+          "confirmation_mode": "auto",
+          "output_variables": ["manual_workflow", "stall_point", "handoff_system_or_team", "possible_backend_action"],
+          "modality": "verbal",
+          "next_required_objective": "dani_next_step_summary"
+        },
+        {
+          "objective_name": "dani_platform_explainer_path",
+          "objective_prompt": "Answer the user's platform question clearly and capture what they are trying to understand: persona, replica, objectives, guardrails, knowledge base, integrations, or live video experience.",
+          "confirmation_mode": "auto",
+          "output_variables": ["platform_topic", "understanding_gap", "followup_question"],
+          "modality": "verbal",
+          "next_required_objective": "dani_next_step_summary"
+        },
+        {
+          "objective_name": "dani_general_path",
+          "objective_prompt": "Keep the demo natural and useful. Capture one practical signal about the user's curiosity, business context, or next question without forcing qualification.",
+          "confirmation_mode": "auto",
+          "output_variables": ["curiosity_signal", "business_context", "next_question"],
+          "modality": "verbal",
+          "next_required_objective": "dani_next_step_summary"
+        },
+        {
+          "objective_name": "dani_next_step_summary",
+          "objective_prompt": "Summarize what was learned, what remains unknown, and the safest suggested next step. Do not say a meeting was booked, email was sent, or backend setup was started unless the app actually did it.",
+          "confirmation_mode": "auto",
+          "output_variables": ["conversation_summary", "unverified_items", "safe_next_step", "qualified_signal"],
+          "modality": "verbal"
+        }
+      ]
+    }
+  },
+  "future_templates": {
+    "field_service_qualification": ["morgan"],
+    "frontdesk_sdr": ["sarah"],
+    "regulated_visual_triage": ["luna"],
+    "concierge_reservation": ["claire"],
+    "generic_frontdoor": ["future_x_agents"]
+  }
+}
