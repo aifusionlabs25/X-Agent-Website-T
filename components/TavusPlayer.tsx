@@ -13,6 +13,7 @@ export default function TavusPlayer({ onClose }: Props) {
     const callFrameRef = useRef<DailyCall | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [conversationUrl, setConversationUrl] = useState<string | null>(null);
 
     useEffect(() => {
         let isMounted = true;
@@ -33,6 +34,8 @@ export default function TavusPlayer({ onClose }: Props) {
                 const container = videoContainerRef.current;
 
                 if (!container || !url) return;
+
+                setConversationUrl(url);
 
                 // 2) Mount the WebRTC Daily iframe directly to the DOM
                 const callFrame = DailyIframe.createFrame(container, {
@@ -65,7 +68,11 @@ export default function TavusPlayer({ onClose }: Props) {
                     onClose();
                 });
 
-                // 4) Join instantly! (prompts user for mic/camera permissions)
+                // 4) Reveal the Daily/Tavus iframe before join so browser permission
+                // prompts and Daily's connection UI are not hidden behind our overlay.
+                setLoading(false);
+
+                // 5) Join instantly! (prompts user for mic/camera permissions)
                 await callFrame.join({ url });
 
             } catch (e: unknown) {
@@ -105,13 +112,25 @@ export default function TavusPlayer({ onClose }: Props) {
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-950 z-[102] p-6 text-center">
                     <p className="text-red-500 text-xl font-bold mb-4 w-full">Connection Failed</p>
                     <p className="text-zinc-400 mb-6">{error}</p>
-                    <button
-                        onClick={onClose}
-                        className="bg-zinc-800 hover:bg-zinc-700 text-white px-6 py-2 rounded-md font-semibold transition-colors flex items-center gap-2"
-                    >
-                        <Square size={16} className="fill-white" />
-                        Cancel Sequence
-                    </button>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                        {conversationUrl && (
+                            <a
+                                href={conversationUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="bg-white hover:bg-zinc-200 text-black px-6 py-2 rounded-md font-semibold transition-colors"
+                            >
+                                Open Tavus Room
+                            </a>
+                        )}
+                        <button
+                            onClick={onClose}
+                            className="bg-zinc-800 hover:bg-zinc-700 text-white px-6 py-2 rounded-md font-semibold transition-colors flex items-center gap-2"
+                        >
+                            <Square size={16} className="fill-white" />
+                            Cancel Sequence
+                        </button>
+                    </div>
                 </div>
             )}
 
