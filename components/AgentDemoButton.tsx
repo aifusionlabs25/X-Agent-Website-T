@@ -13,8 +13,8 @@ interface Props {
 export default function AgentDemoButton({ agent }: Props) {
     const [isPlaying, setIsPlaying] = useState(false);
 
-    // If Dani, use the smooth inline Tavus player
-    if (agent.slug === 'dani' && agent.liveUrl) {
+    // Dani uses the inline Tavus player instead of an external demo URL.
+    if (agent.slug === 'dani') {
         return (
             <>
                 <button

@@ -8,9 +8,8 @@ export const ALL_AGENTS: AgentData[] = [
         slug: 'dani',
         name: 'DANI',
         role: 'X-Agent Sales Technician',
-        thumbnailSrc: '/agents/hero/dani-hero-wide.jpg', // crop of hero until dani thumbnail added
+        thumbnailSrc: '/agents/thumbnails/dani-tavus-custom-replica.png',
         accentColor: '#6366f1',
-        liveUrl: 'https://dani-x-agent.vercel.app/',
     },
     {
         slug: 'james',

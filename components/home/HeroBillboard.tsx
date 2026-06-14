@@ -24,7 +24,7 @@ export default function HeroBillboard() {
             >
                 {/* Hero image */}
                 <Image
-                    src="/agents/hero/dani-hero-wide.jpg"
+                    src="/agents/hero/dani-tavus-custom-replica.png"
                     alt="Dani – X Agent"
                     fill
                     priority
@@ -78,7 +78,7 @@ export default function HeroBillboard() {
                             className="w-full sm:w-auto"
                         >
                             {/* Inline Tavus Player Trigger */}
-                            {daniAgent?.liveUrl ? (
+                            {daniAgent ? (
                                 <button
                                     onClick={() => setIsPlaying(true)}
                                     className="flex items-center justify-center gap-2 bg-white text-black hover:bg-zinc-200 font-bold px-8 py-3.5 rounded-md transition-colors w-full"

@@ -3,6 +3,7 @@ import { cfg } from "./config";
 export async function createConversation(callbackUrl?: string) {
     const body: Record<string, unknown> = {
         persona_id: cfg.personaId,
+        replica_id: cfg.replicaId,
         custom_greeting:
             "Hey, welcome. I am Dani. Thanks for dropping in. What are you most curious about today.",
         callback_url: callbackUrl,
