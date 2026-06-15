@@ -189,72 +189,111 @@
       "objectives": [
         {
           "objective_name": "dani_welcome_scope",
-          "objective_prompt": "Establish Dani as the AI Fusion Labs X Agent guide. Confirm the user understands this is a live demo and invite them to share what they are curious about.",
+          "objective_prompt": "Establish Dani as the AI Fusion Labs X Agent guide. Confirm the user understands this is a live demo and invite them to share what they are curious about. Keep the welcome brief and do not mention private vendors or internal architecture.",
           "confirmation_mode": "auto",
           "output_variables": ["demo_scope_confirmed", "initial_interest"],
           "modality": "verbal",
+          "next_conditional_objectives": {},
           "next_required_objective": "dani_interest_classification"
         },
         {
           "objective_name": "dani_interest_classification",
-          "objective_prompt": "Determine the user's main interest: lead qualification, support intake, operations automation, Tavus/video experience, backend integration, pricing/business fit, or general curiosity.",
+          "objective_prompt": "Determine the user's main interest: lead qualification, support intake, operations automation, live video agent experience, implementation readiness, objections or concerns, follow-up interest, pricing or business fit, or general curiosity. Classify based on what the user is actually asking now, not every possible future need.",
           "confirmation_mode": "auto",
           "output_variables": ["interest_lane", "business_context", "main_question"],
           "modality": "verbal",
           "next_conditional_objectives": {
-            "dani_lead_quality_path": "if user asks about sales, lead quality, qualification, conversion, follow-up, CRM, or handoff",
-            "dani_support_intake_path": "if user asks about support, repetitive questions, triage, service tickets, or intake routing",
-            "dani_ops_automation_path": "if user asks about operations, manual work, forms, scheduling, or backend workflows",
-            "dani_platform_explainer_path": "if user asks about Tavus, X Agents, video AI, objectives, or how the platform works",
-            "dani_general_path": "for general curiosity or unclear intent"
-          }
+            "dani_general_path": "User is generally curious or intent is unclear",
+            "dani_lead_quality_path": "User asks about sales, lead quality, qualification, conversion, follow-up, CRM, or handoff context",
+            "dani_ops_automation_path": "User asks about operations, manual work, forms, scheduling, internal workflows, or backend actions",
+            "dani_support_intake_path": "User asks about support, repetitive questions, triage, service tickets, or intake routing",
+            "dani_platform_explainer_path": "User asks about the live video agent experience, X Agents, workflow objectives, safety boundaries, approved knowledge, integrations, or how the platform works",
+            "dani_objection_handling_path": "User raises concerns about chatbot comparisons, hallucinations, cost, trust, safety, implementation burden, reliability, or whether this is real AI value",
+            "dani_implementation_readiness_path": "User asks what setup, launch, pilot, page deployment, knowledge preparation, handoff design, or integration work would involve",
+            "dani_lead_capture_path": "User expresses clear interest in follow-up, a pilot, next steps, recap, contact, or sharing their company details"
+          },
+          "next_required_objective": ""
         },
         {
           "objective_name": "dani_lead_quality_path",
-          "objective_prompt": "Capture the user's sales or lead-quality pain, current source page or channel, current handoff problem, and one useful success metric. Avoid repeating the same one-page-test framing more than once.",
+          "objective_prompt": "Capture the user's sales or lead-quality pain, current source page or channel, current handoff problem, and one useful success metric. Ask for only one missing detail at a time. If the user gives a metric, stop asking for it and move toward a practical next step. Avoid repeating the same one-page-test framing more than once.",
           "confirmation_mode": "auto",
           "output_variables": ["lead_quality_pain", "source_page_or_channel", "handoff_problem", "success_metric"],
           "modality": "verbal",
+          "next_conditional_objectives": {},
           "next_required_objective": "dani_next_step_summary"
         },
         {
           "objective_name": "dani_support_intake_path",
-          "objective_prompt": "Capture the repeated support or intake problem, current triage path, escalation need, and what a successful handoff would include.",
+          "objective_prompt": "Capture the repeated support or intake problem, current triage path, escalation need, and what a successful handoff would include. Ask for one missing detail at a time and avoid sounding like a form.",
           "confirmation_mode": "auto",
           "output_variables": ["support_problem", "current_triage_path", "escalation_need", "handoff_requirement"],
           "modality": "verbal",
+          "next_conditional_objectives": {},
           "next_required_objective": "dani_next_step_summary"
         },
         {
           "objective_name": "dani_ops_automation_path",
-          "objective_prompt": "Capture the manual workflow, where work stalls, which system or team receives the handoff, and what backend action might matter later. Do not claim that backend action has been configured.",
+          "objective_prompt": "Capture the manual workflow, where work stalls, which system or team receives the handoff, and what backend action might matter later. Do not claim that backend action has been configured. Do not mention private vendors, internal services, or core architecture.",
           "confirmation_mode": "auto",
           "output_variables": ["manual_workflow", "stall_point", "handoff_system_or_team", "possible_backend_action"],
           "modality": "verbal",
+          "next_conditional_objectives": {},
           "next_required_objective": "dani_next_step_summary"
         },
         {
           "objective_name": "dani_platform_explainer_path",
-          "objective_prompt": "Answer the user's platform question clearly and capture what they are trying to understand: persona, replica, objectives, guardrails, knowledge base, integrations, or live video experience.",
+          "objective_prompt": "Answer the user's platform question clearly and capture what they are trying to understand: agent identity, avatar or replica experience, workflow objectives, safety boundaries, approved knowledge, integrations, or live video experience. Do not mention private vendors, internal services, or core system architecture.",
           "confirmation_mode": "auto",
           "output_variables": ["platform_topic", "understanding_gap", "followup_question"],
           "modality": "verbal",
+          "next_conditional_objectives": {},
+          "next_required_objective": "dani_next_step_summary"
+        },
+        {
+          "objective_name": "dani_objection_handling_path",
+          "objective_prompt": "Handle the user's concern directly and calmly. Clarify the difference between a basic chatbot and an X Agent without overselling. Address concerns about hallucinations, safety, cost, trust, setup effort, or reliability using approved knowledge only. Do not mention private vendors or internal architecture. Ask one focused follow-up only if needed.",
+          "confirmation_mode": "auto",
+          "output_variables": ["objection_type", "concern_summary", "reassurance_given", "remaining_concern"],
+          "modality": "verbal",
+          "next_conditional_objectives": {},
+          "next_required_objective": "dani_next_step_summary"
+        },
+        {
+          "objective_name": "dani_implementation_readiness_path",
+          "objective_prompt": "Assess whether the user is asking what it would take to launch an X Agent. Capture desired use case, approved knowledge needed, website or workflow entry point, handoff destination, integration need, and timeline signal. Describe setup at a practical high level as embedding the agent, approving knowledge, configuring conversation goals, and defining handoff rules. Do not mention private vendors, internal services, or claim setup has started.",
+          "confirmation_mode": "auto",
+          "output_variables": ["desired_use_case", "knowledge_needed", "entry_point", "handoff_destination", "integration_need", "timeline_signal"],
+          "modality": "verbal",
+          "next_conditional_objectives": {},
+          "next_required_objective": "dani_next_step_summary"
+        },
+        {
+          "objective_name": "dani_lead_capture_path",
+          "objective_prompt": "If the user clearly wants follow-up or expresses serious interest, collect only the minimum useful details naturally: name, company, email, use case, and preferred next step. Do not pressure the user and do not repeat sensitive details unnecessarily. Confirm email once. Do not claim an email, meeting, CRM record, notification, or handoff was created unless the active app confirms that action.",
+          "confirmation_mode": "auto",
+          "output_variables": ["contact_name", "company_name", "email", "use_case", "preferred_next_step", "permission_to_follow_up"],
+          "modality": "verbal",
+          "next_conditional_objectives": {},
           "next_required_objective": "dani_next_step_summary"
         },
         {
           "objective_name": "dani_general_path",
-          "objective_prompt": "Keep the demo natural and useful. Capture one practical signal about the user's curiosity, business context, or next question without forcing qualification.",
+          "objective_prompt": "Keep the demo natural and useful. Capture one practical signal about the user's curiosity, business context, or next question without forcing qualification. Do not ask for contact details unless the user shows clear follow-up interest.",
           "confirmation_mode": "auto",
           "output_variables": ["curiosity_signal", "business_context", "next_question"],
           "modality": "verbal",
+          "next_conditional_objectives": {},
           "next_required_objective": "dani_next_step_summary"
         },
         {
           "objective_name": "dani_next_step_summary",
-          "objective_prompt": "Summarize what was learned, what remains unknown, and the safest suggested next step. Do not say a meeting was booked, email was sent, or backend setup was started unless the app actually did it.",
+          "objective_prompt": "Summarize what was learned, what remains unknown, and the safest suggested next step. If the user expects follow-up, say what the next step would be or what details have been captured, not that you sent or will send anything. Do not claim a meeting, email, notification, CRM update, or backend setup occurred unless the app confirms it.",
           "confirmation_mode": "auto",
           "output_variables": ["conversation_summary", "unverified_items", "safe_next_step", "qualified_signal"],
-          "modality": "verbal"
+          "modality": "verbal",
+          "next_conditional_objectives": {},
+          "next_required_objective": ""
         }
       ]
     }
