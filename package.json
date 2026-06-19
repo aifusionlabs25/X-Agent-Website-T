@@ -27,6 +27,9 @@
     "test:hermes-runtime-readiness": "node tests/hermes-runtime-readiness.test.mjs",
     "test:hermes-normal-site-server-side-memory-injection-t24": "node tests/hermes-normal-site-server-side-memory-injection-t24.test.mjs",
     "test:hermes-hosted-normal-route-memory-start-t25-proof": "node tests/hermes-hosted-normal-route-memory-start-t25-proof.test.mjs",
+    "test:hermes-return-code-memory-lookup-t27": "node tests/hermes-return-code-memory-lookup-t27.test.mjs",
+    "test:hermes-return-code-normal-start-integration-t28": "node tests/hermes-return-code-normal-start-integration-t28.test.mjs",
+    "test:hermes-return-code-conversation-start-dry-run-t29": "node tests/hermes-return-code-conversation-start-dry-run-t29.test.mjs",
     "hermes:manual-tavus-transcript-dry-run": "node scripts/manual-tavus-transcript-dry-run.mjs",
     "hermes:manual-tavus-live-memory-start": "node scripts/manual-tavus-live-memory-start.mjs",
     "hermes:manual-hosted-tavus-memory-start": "node scripts/manual-hosted-tavus-memory-start.mjs"
