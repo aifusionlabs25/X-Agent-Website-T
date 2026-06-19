@@ -14,7 +14,7 @@ Accepted body:
 
 ```json
 {
-  "return_code": "DANI-RET-K7P4-M9Q2-T6VA"
+  "return_code": "<local_dani_return_code>"
 }
 ```
 
@@ -111,3 +111,25 @@ The test proves:
 After local validation, commit and push T27/T28/T29 code, wait for Vercel production to deploy the commit, then perform exactly one hosted POST to this dry-run route.
 
 Do not POST to `/api/conversation/start` in this phase.
+
+## Hosted Proof Result
+
+Commit `8abc70d` deployed to Vercel production with the route present in the build output.
+
+One hosted POST was attempted against:
+
+```text
+https://x-agent-website-t.vercel.app/api/xagent/return-code-conversation-start/dry-run
+```
+
+The route returned HTTP 400 with safe rejection flags:
+
+- `return_code_supplied=true`
+- `return_code_valid=false`
+- `memory_context_requested=true`
+- `server_side_memory_lookup_attempted=false`
+- `server_side_memory_context_applied=false`
+- `tavus_conversational_context_attached=false`
+- `tavus_create_conversation_called=false`
+
+This confirms the deployed route exists and rejects safely before Tavus creation. The proof artifact intentionally does not store the return code value, prompt text, memory summary, hashes, namespaces, backend IDs, transcript content, room URL, or API keys.
