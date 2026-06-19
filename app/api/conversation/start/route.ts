@@ -9,6 +9,7 @@ import {
     readOptionalJsonBody,
     safeConversationStartMemoryFlags,
 } from "@/lib/xagent/conversationStartMemoryContext.mjs";
+import { maybeResolveServerSideMemoryContextForStart } from "@/lib/xagent/serverSideMemoryContextResolver.mjs";
 
 type ConversationStartMemoryContext = {
     memory_context_requested: boolean;
@@ -30,7 +31,9 @@ export async function POST(request: Request) {
         let memoryContext: ConversationStartMemoryContext = buildNoMemoryConversationStartContext();
         if (areConversationStartMemoryContextGatesOpen()) {
             try {
-                memoryContext = buildConversationStartMemoryContextForRequestBody(await readOptionalJsonBody(request));
+                const requestBody = await readOptionalJsonBody(request);
+                memoryContext = buildConversationStartMemoryContextForRequestBody(requestBody);
+                memoryContext = await maybeResolveServerSideMemoryContextForStart(requestBody) ?? memoryContext;
             } catch {
                 console.warn("Rejected invalid conversation-start memory context before Tavus createConversation.");
                 return NextResponse.json(
