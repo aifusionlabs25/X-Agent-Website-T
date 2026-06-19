@@ -1,0 +1,60 @@
+{
+  "conversation_id": "tavus_conversation_test_001",
+  "conversation_name": "Dani dry-run transcript fixture",
+  "conversation_url": "https://tavus.daily.co/tavus_conversation_test_001",
+  "callback_url": null,
+  "status": "ended",
+  "replica_id": "replica_test_001",
+  "persona_id": "persona_dani_test_001",
+  "created_at": "2026-06-18T20:59:00Z",
+  "updated_at": "2026-06-18T21:03:00Z",
+  "events": [
+    {
+      "event_type": "system.replica_joined",
+      "created_at": "2026-06-18T20:59:10Z",
+      "properties": {
+        "replica_id": "replica_test_001"
+      }
+    },
+    {
+      "event_type": "application.transcription_ready",
+      "created_at": "2026-06-18T21:03:00Z",
+      "properties": {
+        "transcript": [
+          {
+            "role": "system",
+            "content": "Internal Tavus transcript setup turn that must not enter Hermes memory.",
+            "timestamp": 1781816345.0,
+            "seconds_from_start": 5.0,
+            "duration": 1.0,
+            "inference_id": "inf_system_001"
+          },
+          {
+            "role": "user",
+            "content": "I want to understand whether Dani can remember lead handoff pain points. My email is visitor@example.com.",
+            "timestamp": 1781816350.25,
+            "seconds_from_start": 10.25,
+            "duration": 5.1,
+            "inference_id": "inf_user_001"
+          },
+          {
+            "role": "assistant",
+            "content": "Dani explained that the dry-run memory path creates no outbound email, CRM action, or live Hermes dispatch.",
+            "timestamp": 1781816358.8,
+            "seconds_from_start": 18.8,
+            "duration": 6.4,
+            "inference_id": "inf_assistant_001"
+          },
+          {
+            "role": "tool",
+            "content": "Internal tool metadata that must not enter Hermes memory.",
+            "timestamp": 1781816366.0,
+            "seconds_from_start": 26.0,
+            "duration": 1.0,
+            "inference_id": "inf_tool_001"
+          }
+        ]
+      }
+    }
+  ]
+}

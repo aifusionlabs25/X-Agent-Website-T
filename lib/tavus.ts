@@ -1,21 +1,14 @@
 import { cfg } from "./config";
+import { buildCreateConversationBody } from "./tavusCreateConversationBody.mjs";
 
-export async function createConversation(callbackUrl?: string) {
-    const body: Record<string, unknown> = {
-        persona_id: cfg.personaId,
-        replica_id: cfg.replicaId,
-        custom_greeting:
-            "Hey, welcome. I am Dani. Thanks for dropping in. What are you most curious about today.",
-        callback_url: callbackUrl,
-        // KB fields temporarily disabled — re-enable once Tavus confirms docs are indexed
-        // document_tags: [cfg.documentTag],
-        // document_retrieval_strategy: "speed",
-        properties: {
-            max_call_duration: cfg.maxCallSeconds,
-            participant_absent_timeout: cfg.absentTimeout,
-            participant_left_timeout: cfg.leftTimeout,
-        },
-    };
+export async function createConversation(
+    callbackUrl?: string,
+    options?: { conversationalContext?: string },
+) {
+    const body = buildCreateConversationBody(cfg, {
+        callbackUrl,
+        conversationalContext: options?.conversationalContext,
+    });
 
     const res = await fetch("https://tavusapi.com/v2/conversations", {
         method: "POST",

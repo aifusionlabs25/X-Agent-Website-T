@@ -1,0 +1,53 @@
+{
+  "artifact_purpose": "xagent_next_session_context_preview",
+  "xagent_memory_recall_preview_version": "phase49_xagent_memory_recall_preview_v1",
+  "agent_slug": "dani",
+  "tenant_id": "ai-fusion-labs",
+  "visitor_id": "visitor_manual_live_tavus_test",
+  "next_session_id": "xagent_session_memory_recall_preview_001",
+  "prior_session_id": "xagent_session_manual_live_tavus_test",
+  "visitor_memory_namespace": "xagents/ai-fusion-labs/dani/visitor_manual_live_tavus_test",
+  "prior_memory_record_ids": [
+    "hxmr_f016484b62254c09"
+  ],
+  "recalled_memory_summary": "The visitor inquired about how to effectively summarize Tavus conversations for internal memory while preserving intent and context for follow-up reviews. The agent explained that summaries should capture goals, objections, and next-step preferences without including sensitive details or promising specific actions like emails or workflows. Redaction is necessary to remove private identifiers but maintains business intent and safe follow-up options. The visitor expressed interest in a pilot review using the X Agent flow, which would be operator-reviewed with limited external artifacts. Key points for future sessions include remembering goals, evaluation status, and safe follow-up preferences without blocking live conversation loops or claiming external actions.",
+  "confidence": 0.72,
+  "provenance": {
+    "memory_record_id": "hxmr_f016484b62254c09",
+    "memory_namespace": "xagents/ai-fusion-labs/dani/visitor_manual_live_tavus_test/xagent_session_manual_live_tavus_test",
+    "visitor_memory_namespace": "xagents/ai-fusion-labs/dani/visitor_manual_live_tavus_test",
+    "memory_type": "session_summary_candidate",
+    "provider": "tavus",
+    "provider_conversation_id": "ca4ec4813b2a8413",
+    "candidate_id": "hxmc_1e85ab19ec2d7019",
+    "local_summary_execution_id": "hxls_db506fa970a016ca",
+    "operator_review_id": "hxor_bb715347a696355d",
+    "summary_hash": "88491412b37f46615fd1be09bd98fb18ad2031012b208e491893bfb4c33d2f59",
+    "source_transcript_hash": "438757edfedc4a1fbbd89097609739f54e05988fc86332287ecf4e2d233dcf40",
+    "redacted_transcript_hash": "e1c4bbfaada0a252ac67262b208950d8a3c8cbf2919505d2f958369194da1814",
+    "record_hash": "c7355949b0cb28af3ef04f21e5cd7b8962744f93611fd9662194a629b8ed5493",
+    "readback_source": "phase48_memory_store_readback",
+    "readback_store_path": "runs/hermes_backend_xagent_memory_store/dani/hxms_50a73c21bad26954/memory_record.json",
+    "record_hash_verified": true,
+    "summary_hash_verified": true,
+    "local_file_memory_store_readback_verified": true
+  },
+  "allowed_use": [
+    "remember prior goals",
+    "remember evaluation status",
+    "remember safe follow-up preferences",
+    "preserve business intent for a future Dani session"
+  ],
+  "forbidden_use": [
+    "do not claim emails were sent",
+    "do not claim CRM updates happened",
+    "do not claim purchases or external actions happened",
+    "do not claim hidden or production persistence"
+  ],
+  "live_turn_loop_dependency": false,
+  "hermes_execution_performed": false,
+  "ollama_generate_called": false,
+  "production_memory_database_mutated": false,
+  "outbound_action_taken": false,
+  "raw_transcript_content_included": false
+}

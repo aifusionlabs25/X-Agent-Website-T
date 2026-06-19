@@ -1,0 +1,42 @@
+{
+  "artifact_purpose": "redacted_tavus_live_transcript_dry_run_proof",
+  "phase": "T8",
+  "conversation_id": "ca4ec4813b2a8413",
+  "provider": "tavus",
+  "agent_slug": "dani",
+  "approved_live_call": "GET /v2/conversations/ca4ec4813b2a8413?verbose=true",
+  "tavus_get_verbose_called_once": true,
+  "application_transcription_ready_returned": true,
+  "hermes_dry_run_payload_built": true,
+  "dry_run_only": true,
+  "transcript_summary": {
+    "source_turn_count": 30,
+    "retained_memory_turn_count": 20,
+    "dropped_non_memory_turn_count": 10,
+    "dropped_non_memory_roles": [
+      "system"
+    ],
+    "transcript_hash": "438757edfedc4a1fbbd89097609739f54e05988fc86332287ecf4e2d233dcf40"
+  },
+  "memory_namespace": "xagents/ai-fusion-labs/dani/visitor_manual_live_tavus_test/xagent_session_manual_live_tavus_test",
+  "visitor_memory_namespace": "xagents/ai-fusion-labs/dani/visitor_manual_live_tavus_test",
+  "idempotency_key": "phase_t2_xagent_website_t_dani_dry_run_v1:ai-fusion-labs:dani:visitor_manual_live_tavus_test:xagent_session_manual_live_tavus_test:tavus:ca4ec4813b2a8413:summarize_session_for_memory:438757edfedc4a1fbbd89097609739f54e05988fc86332287ecf4e2d233dcf40",
+  "allowed_operations": [
+    "summarize_session_for_memory"
+  ],
+  "boundary_proof": {
+    "hermes_dispatched": false,
+    "live_hermes_called": false,
+    "codex_openai_escalation": false,
+    "ollama_generate_called": false,
+    "resend_called": false,
+    "production_backend_mutated": false,
+    "production_memory_database_mutated": false,
+    "tavus_webhook_required": false,
+    "webhook_registered": false,
+    "provider_conversation_id_used_for_namespace": false,
+    "raw_transcript_included": false,
+    "raw_transcript_content_stored": false
+  },
+  "next_decision": "Design a disabled internal Hermes dispatch handoff, or keep the app at dry-run preview only."
+}

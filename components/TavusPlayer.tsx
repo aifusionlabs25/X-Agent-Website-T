@@ -14,6 +14,15 @@ export default function TavusPlayer({ onClose }: Props) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [conversationUrl, setConversationUrl] = useState<string | null>(null);
+    const sessionIdentityRef = useRef<{
+        tenant_id: string;
+        agent_slug: string;
+        visitor_id: string;
+        session_id: string;
+        provider: string;
+        provider_conversation_id: string;
+        startedAt: number;
+    } | null>(null);
 
     useEffect(() => {
         let isMounted = true;
@@ -36,6 +45,15 @@ export default function TavusPlayer({ onClose }: Props) {
                 if (!container || !url) return;
 
                 setConversationUrl(url);
+                sessionIdentityRef.current = {
+                    tenant_id: json.tenant_id,
+                    agent_slug: json.agent_slug,
+                    visitor_id: json.visitor_id,
+                    session_id: json.session_id,
+                    provider: json.provider,
+                    provider_conversation_id: json.provider_conversation_id,
+                    startedAt: json.startedAt,
+                };
 
                 // 2) Mount the WebRTC Daily iframe directly to the DOM
                 const callFrame = DailyIframe.createFrame(container, {

@@ -1,0 +1,7 @@
+{
+  "conversation_url_present": true,
+  "provider_conversation_id": "cc3bf45a98104499",
+  "retrieval_status": "conversation_url_recovered",
+  "exactly_one_tavus_get_attempt": true,
+  "tavus_room_joined": false
+}
