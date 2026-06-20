@@ -48,6 +48,7 @@
     "test:hermes-tavus-session-duration-config": "node tests/hermes-tavus-session-duration-config.test.mjs",
     "test:hermes-email-memory-store-t41": "node tests/hermes-email-memory-store-t41.test.mjs",
     "test:hermes-tavus-transcription-memory-webhook-t41": "node tests/hermes-tavus-transcription-memory-webhook-t41.test.mjs",
+    "test:hermes-email-memory-store-status-t42": "node tests/hermes-email-memory-store-status-t42.test.mjs",
     "hermes:manual-tavus-transcript-dry-run": "node scripts/manual-tavus-transcript-dry-run.mjs",
     "hermes:manual-tavus-live-memory-start": "node scripts/manual-tavus-live-memory-start.mjs",
     "hermes:manual-hosted-tavus-memory-start": "node scripts/manual-hosted-tavus-memory-start.mjs"
