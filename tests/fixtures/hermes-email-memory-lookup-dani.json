@@ -1,0 +1,72 @@
+{
+  "artifact_purpose": "hermes_email_memory_lookup_preview_fixture",
+  "phase": "T36",
+  "source_reference": "tavus-xlink-hub H-email-2 fixture proof shape",
+  "agent_slug": "dani",
+  "tenant_id": "ai-fusion-labs",
+  "memory_identity_type": "email_identity_hash",
+  "email_identity_hash": "50fd4f46d1839fc9d426b9a20f7c17150689f629be8d8bc0f0a0d70007e17c7b",
+  "identity_salt_fixture_only": "h-email-2-fixture-only-non-production-salt",
+  "lookup_source": "local_email_identity_fixture_proof_store",
+  "local_fixture_only": true,
+  "raw_email_included": false,
+  "normalized_email_included": false,
+  "production_database_mutated": false,
+  "production_memory_database_mutated": false,
+  "live_tavus_called": false,
+  "live_hermes_called": false,
+  "openai_called": false,
+  "ollama_generate_called": false,
+  "resend_called": false,
+  "outbound_action_taken": false,
+  "memory_context": {
+    "artifact_purpose": "xagent_email_identity_next_session_context_preview",
+    "xagent_memory_recall_preview_version": "h_email_2_email_identity_memory_fixture_proof_v1",
+    "agent_slug": "dani",
+    "tenant_id": "ai-fusion-labs",
+    "visitor_id": "email/50fd4f46d1839fc9d426b9a20f7c17150689f629be8d8bc0f0a0d70007e17c7b",
+    "next_session_id": "xagent_session_email_identity_fixture_002",
+    "prior_session_id": "xagent_session_email_identity_fixture_001",
+    "visitor_memory_namespace": "xagents/ai-fusion-labs/dani/email/50fd4f46d1839fc9d426b9a20f7c17150689f629be8d8bc0f0a0d70007e17c7b",
+    "prior_memory_record_ids": [
+      "hxeimc_a8530529bb81f537"
+    ],
+    "recalled_memory_summary": "Visitor is evaluating Dani for repeat-session business continuity and wants safe memory recall to preserve goals, preferences, and evaluation status across fresh Tavus sessions.",
+    "confidence": 0.81,
+    "provenance": {
+      "memory_record_id": "hxeimc_a8530529bb81f537",
+      "memory_namespace": "xagents/ai-fusion-labs/dani/email/50fd4f46d1839fc9d426b9a20f7c17150689f629be8d8bc0f0a0d70007e17c7b/xagent_session_email_identity_fixture_001",
+      "visitor_memory_namespace": "xagents/ai-fusion-labs/dani/email/50fd4f46d1839fc9d426b9a20f7c17150689f629be8d8bc0f0a0d70007e17c7b",
+      "memory_type": "email_identity_fixture_recall_candidate",
+      "provider": "tavus",
+      "provider_conversation_id": "tavus_email_identity_fixture_conv_001",
+      "candidate_id": "hxeimc_a8530529bb81f537",
+      "local_summary_execution_id": "hxeils_fixture_only_summary_001",
+      "operator_review_id": "hxeior_fixture_only_review_001",
+      "summary_hash": "755f1f14977e5a3e37db68d4bbdf68a1f88e3a6324344d96626b61833128dab8",
+      "source_transcript_hash": "66a2bb19da1cef60c2c55c514715d555107a94abce59407bbed48f98a7c1cc47",
+      "redacted_transcript_hash": "d878af165830e16bb5ae91d1dbaf06412094e849cdf07902a9def331722e21da",
+      "record_hash": "h_email_2_fixture_record_hash_verified",
+      "record_hash_verified": true,
+      "summary_hash_verified": true
+    },
+    "allowed_use": [
+      "remember prior goals",
+      "remember safe evaluation context",
+      "preserve user-stated preferences",
+      "support a future Dani session without claiming hidden persistence"
+    ],
+    "forbidden_use": [
+      "do not expose raw email",
+      "do not claim emails were sent",
+      "do not claim CRM updates or outbound actions happened",
+      "do not reveal hashes, namespaces, proof IDs, or backend machinery to the visitor"
+    ],
+    "live_turn_loop_dependency": false,
+    "hermes_execution_performed": false,
+    "ollama_generate_called": false,
+    "production_memory_database_mutated": false,
+    "outbound_action_taken": false,
+    "raw_transcript_content_included": false
+  }
+}
