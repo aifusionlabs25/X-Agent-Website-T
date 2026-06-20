@@ -10,6 +10,22 @@ import {
     safeConversationStartMemoryFlags,
 } from "@/lib/xagent/conversationStartMemoryContext.mjs";
 import { maybeResolveServerSideMemoryContextForStart } from "@/lib/xagent/serverSideMemoryContextResolver.mjs";
+import { storeConversationEmailMappingForStart } from "@/lib/xagent/emailMemoryStore.mjs";
+
+function env(key: string) {
+    return process.env[key]?.replace(/^\uFEFF/, "").trim() ?? "";
+}
+
+function buildCallbackUrl(host: string | null) {
+    if (!host) return undefined;
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    const baseUrl = `${protocol}://${host}/api/webhook`;
+    const callbackToken = env("XAGENT_TAVUS_CALLBACK_TOKEN");
+    if (!callbackToken) return baseUrl;
+    const url = new URL(baseUrl);
+    url.searchParams.set("token", callbackToken);
+    return url.toString();
+}
 
 type ConversationStartMemoryContext = {
     memory_context_requested: boolean;
@@ -25,15 +41,17 @@ export async function POST(request: Request) {
 
         // Dynamically build the webhook callback URL
         const host = request.headers.get('host');
-        const protocol = host?.includes('localhost') ? 'http' : 'https';
-        const callbackUrl = host ? `${protocol}://${host}/api/webhook` : undefined;
+        const callbackUrl = buildCallbackUrl(host);
+        const requestBody = await readOptionalJsonBody(request);
 
         let memoryContext: ConversationStartMemoryContext = buildNoMemoryConversationStartContext();
         if (areConversationStartMemoryContextGatesOpen()) {
             try {
-                const requestBody = await readOptionalJsonBody(request);
                 memoryContext = buildConversationStartMemoryContextForRequestBody(requestBody);
-                memoryContext = await maybeResolveServerSideMemoryContextForStart(requestBody) ?? memoryContext;
+                memoryContext = await maybeResolveServerSideMemoryContextForStart(
+                    requestBody,
+                    { nextSessionId: identity.session_id },
+                ) ?? memoryContext;
             } catch {
                 console.warn("Rejected invalid conversation-start memory context before Tavus createConversation.");
                 return NextResponse.json(
@@ -46,6 +64,17 @@ export async function POST(request: Request) {
         const data = await createConversation(callbackUrl, {
             conversationalContext: memoryContext.conversationalContext,
         });
+        try {
+            await storeConversationEmailMappingForStart({
+                requestBody,
+                session_id: identity.session_id,
+                provider_conversation_id: data.conversation_id,
+                started_at: startedAt,
+            });
+        } catch (mappingError) {
+            console.warn("Email memory mapping was not stored for conversation start.", mappingError);
+        }
+
         return NextResponse.json({
             ...buildDaniConversationStartResponse(data, startedAt, identity),
             ...safeConversationStartMemoryFlags(memoryContext),
