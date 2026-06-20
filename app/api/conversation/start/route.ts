@@ -48,16 +48,21 @@ export async function POST(request: Request) {
         if (areConversationStartMemoryContextGatesOpen()) {
             try {
                 memoryContext = buildConversationStartMemoryContextForRequestBody(requestBody);
-                memoryContext = await maybeResolveServerSideMemoryContextForStart(
-                    requestBody,
-                    { nextSessionId: identity.session_id },
-                ) ?? memoryContext;
             } catch {
                 console.warn("Rejected invalid conversation-start memory context before Tavus createConversation.");
                 return NextResponse.json(
                     buildInvalidMemoryContextValidationResponse(),
                     { status: 400 },
                 );
+            }
+
+            try {
+                memoryContext = await maybeResolveServerSideMemoryContextForStart(
+                    requestBody,
+                    { nextSessionId: identity.session_id },
+                ) ?? memoryContext;
+            } catch (memoryLookupError) {
+                console.warn("Server-side memory lookup was unavailable; starting without memory context.", memoryLookupError);
             }
         }
 
