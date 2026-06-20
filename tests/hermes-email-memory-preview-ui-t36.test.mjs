@@ -76,11 +76,11 @@ assert.equal(doc.includes("xagents/ai-fusion-labs/dani/email/"), false);
 assert.equal(doc.includes("TAVUS_API_KEY"), false);
 
 const tavusPlayerSource = await readFile("components/TavusPlayer.tsx", "utf8");
-assert.match(tavusPlayerSource, /fetch\('\/api\/conversation\/start', \{ method: 'POST' \}\)/);
-assert.equal(tavusPlayerSource.includes("email"), false);
+assert.match(tavusPlayerSource, /fetch\('\/api\/conversation\/start'/);
+assert.match(tavusPlayerSource, /email/);
 assert.equal(tavusPlayerSource.includes("email_identity_hash"), false);
 assert.equal(tavusPlayerSource.includes("memory_context"), false);
-assert.equal(tavusPlayerSource.includes("JSON.stringify"), false);
+assert.match(tavusPlayerSource, /JSON\.stringify\(startPayload\)/);
 
 const packageJson = JSON.parse(await readFile("package.json", "utf8"));
 assert.equal(

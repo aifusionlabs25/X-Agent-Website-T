@@ -141,7 +141,7 @@ assert.equal(
   "node tests/hermes-email-identity-memory-contract-t35.test.mjs",
 );
 
-assert.match(tavusPlayerSource, /fetch\('\/api\/conversation\/start', \{ method: 'POST' \}\)/);
+assert.match(tavusPlayerSource, /fetch\('\/api\/conversation\/start'/);
 assert.equal(tavusPlayerSource.includes("email_identity_hash"), false);
 assert.equal(tavusPlayerSource.includes("return_code"), false);
 

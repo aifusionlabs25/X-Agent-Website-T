@@ -40,7 +40,7 @@ const allMemoryOpen = {
 const tavusConfig = {
   personaId: "persona_return_code_start_test",
   replicaId: "replica_return_code_start_test",
-  maxCallSeconds: 120,
+  maxCallSeconds: 720,
   absentTimeout: 30,
   leftTimeout: 5,
 };
@@ -257,10 +257,10 @@ async function main() {
   assertSerializedResponseExcludesMemoryData(invalidMemoryValidationResponse);
 
   const tavusPlayerSource = await readFile("components/TavusPlayer.tsx", "utf8");
-  assert.match(tavusPlayerSource, /fetch\('\/api\/conversation\/start', \{ method: 'POST' \}\)/);
+  assert.match(tavusPlayerSource, /fetch\('\/api\/conversation\/start'/);
   assert.equal(tavusPlayerSource.includes("return_code"), false);
   assert.equal(tavusPlayerSource.includes("memory_context"), false);
-  assert.equal(tavusPlayerSource.includes("JSON.stringify"), false);
+  assert.match(tavusPlayerSource, /JSON\.stringify\(startPayload\)/);
 
   const routeSource = await readFile("app/api/conversation/start/route.ts", "utf8");
   assert.match(routeSource, /maybeResolveServerSideMemoryContextForStart/);

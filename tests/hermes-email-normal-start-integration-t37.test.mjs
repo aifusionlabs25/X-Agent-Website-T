@@ -50,7 +50,7 @@ const allMemoryOpen = {
 const tavusConfig = {
   personaId: "persona_email_start_test",
   replicaId: "replica_email_start_test",
-  maxCallSeconds: 120,
+  maxCallSeconds: 720,
   absentTimeout: 30,
   leftTimeout: 5,
 };
@@ -226,13 +226,14 @@ async function main() {
     ),
     /basic valid email shape/,
   );
-  await assert.rejects(
-    () => maybeResolveServerSideMemoryContextForStart(
-      { email: "unknown@example.invalid" },
-      { env: emailOpen, emailMemoryFixture: emailFixture },
-    ),
-    /email identity was not found/,
+  const unknownEmailStartsFresh = await maybeResolveServerSideMemoryContextForStart(
+    { email: "unknown@example.invalid" },
+    { env: emailOpen, emailMemoryFixture: emailFixture },
   );
+  assert.equal(unknownEmailStartsFresh.memory_context_requested, false);
+  assert.equal(unknownEmailStartsFresh.memory_context_applied, false);
+  assert.equal(unknownEmailStartsFresh.tavus_conversational_context_attached, false);
+  assert.equal(unknownEmailStartsFresh.server_side_memory_context_source, "email_identity_no_approved_memory_found");
 
   const mockedTavusBodies = [];
   const mockedCreateConversation = async (callbackUrl, options = {}) => {
@@ -292,11 +293,12 @@ async function main() {
   assertSerializedResponseExcludesEmailMemoryData(invalidMemoryValidationResponse);
 
   const tavusPlayerSource = await readFile("components/TavusPlayer.tsx", "utf8");
-  assert.match(tavusPlayerSource, /fetch\('\/api\/conversation\/start', \{ method: 'POST' \}\)/);
-  assert.equal(tavusPlayerSource.includes("email"), false);
+  assert.match(tavusPlayerSource, /fetch\('\/api\/conversation\/start'/);
+  assert.match(tavusPlayerSource, /JSON\.stringify\(startPayload\)/);
+  assert.match(tavusPlayerSource, /email/);
+  assert.match(tavusPlayerSource, /skip_memory/);
   assert.equal(tavusPlayerSource.includes("returning_email"), false);
   assert.equal(tavusPlayerSource.includes("memory_context"), false);
-  assert.equal(tavusPlayerSource.includes("JSON.stringify"), false);
 
   const routeSource = await readFile("app/api/conversation/start/route.ts", "utf8");
   assert.match(routeSource, /maybeResolveServerSideMemoryContextForStart/);

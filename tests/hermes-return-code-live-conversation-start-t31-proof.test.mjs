@@ -1,12 +1,11 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-const proofPath = "docs/proofs/hermes_tavus_hosted_normal_route_memory_start_t25_safe_capture.json";
-const docPath = "docs/HERMES_TAVUS_HOSTED_NORMAL_ROUTE_MEMORY_START_T25_PROOF.md";
+const proofPath = "docs/proofs/hermes_return_code_live_conversation_start_t31_safe_capture.json";
+const docPath = "docs/HERMES_RETURN_CODE_LIVE_CONVERSATION_START_T31_PROOF.md";
 const proof = JSON.parse(await readFile(proofPath, "utf8"));
-const proofSerialized = JSON.stringify(proof);
 const doc = await readFile(docPath, "utf8");
-const combined = `${proofSerialized}\n${doc}`;
+const combined = `${JSON.stringify(proof)}\n${doc}`;
 
 function walk(value, visitor) {
   if (Array.isArray(value)) {
@@ -22,6 +21,8 @@ function walk(value, visitor) {
 }
 
 const forbiddenExactKeys = new Set([
+  "return_code",
+  "returnCode",
   "conversation_url",
   "conversational_context",
   "candidate_tavus_prompt_context",
@@ -38,61 +39,51 @@ const forbiddenExactKeys = new Set([
 ]);
 
 walk(proof, (key) => {
-  assert.equal(forbiddenExactKeys.has(key), false, `T25 proof must not include field: ${key}`);
+  assert.equal(forbiddenExactKeys.has(key), false, `T31 proof must not include field: ${key}`);
 });
 
-assert.equal(proof.artifact_purpose, "hermes_tavus_hosted_normal_route_memory_start_t25_proof");
-assert.equal(proof.phase, "T25");
-assert.equal(proof.proof_status, "hosted_normal_no_body_post_succeeded");
-assert.equal(proof.production_deployed_commit, "f86b31f");
-assert.equal(proof.production_t24_code_confirmed, true);
-assert.equal(proof.local_t24_changes_uncommitted, false);
-assert.equal(proof.runtime_readiness_checked, true);
-assert.equal(proof.runtime_readiness_base_memory_passed, true);
-assert.deepEqual(proof.runtime_readiness_required_fields, {
-  xagent_session_identity_supported: true,
-  memory_context_injection_code_present: true,
-  tavus_conversational_context_supported: true,
-  memory_context_env_gates_open: true,
-});
-assert.equal(proof.production_six_memory_gates_checked, true);
-assert.equal(proof.production_six_memory_gates_open, true);
-assert.deepEqual(proof.production_six_memory_gate_matches, {
-  XAGENT_TAVUS_MEMORY_CONTEXT_INJECTION_ENABLED: true,
-  XAGENT_DANI_TAVUS_MEMORY_CONTEXT_PILOT_ENABLED: true,
-  XAGENT_TAVUS_MEMORY_CONTEXT_INJECTION_KILL_SWITCH: true,
-  XAGENT_NORMAL_SITE_MEMORY_LOOKUP_ENABLED: true,
-  XAGENT_DANI_NORMAL_SITE_MEMORY_LOOKUP_PILOT_ENABLED: true,
-  XAGENT_NORMAL_SITE_MEMORY_LOOKUP_KILL_SWITCH: true,
-});
-
+assert.equal(proof.artifact_purpose, "hermes_return_code_live_conversation_start_t31_proof");
+assert.equal(proof.phase, "T31");
+assert.equal(proof.deployed_commit, "f726eb0");
+assert.equal(proof.deployed_commit_is_required_or_later, true);
+assert.equal(proof.production_gate_names_present, true);
+assert.equal(proof.all_nine_required_production_gates_confirmed_open, true);
+assert.equal(proof.gate_values_stored, false);
+assert.equal(proof.hosted_route_used, true);
 assert.equal(proof.hosted_start_url, "https://x-agent-website-t.vercel.app/api/conversation/start");
-assert.equal(proof.hosted_no_body_post_attempted, true);
-assert.equal(proof.exactly_one_hosted_no_body_post, true);
-assert.equal(proof.normal_no_body_route_used, true);
+assert.equal(proof.exactly_one_hosted_return_code_start_post, true);
+assert.equal(proof.return_code_value_stored, false);
+
 assert.equal(proof.http_status, 200);
+assert.equal(proof.return_code_supplied, true);
+assert.equal(proof.return_code_valid, true);
 assert.equal(proof.conversation_url_present, true);
-assert.equal(proof.provider_conversation_id, "cfbad0bafef3e476");
+assert.equal(proof.provider_conversation_id, "cef91e8a6b1d9476");
 assert.equal(proof.tenant_id, "ai-fusion-labs");
 assert.equal(proof.agent_slug, "dani");
+assert.match(proof.visitor_id, /^visitor_[0-9a-f-]{36}$/i);
+assert.match(proof.session_id, /^xagent_session_[0-9a-f-]{36}$/i);
 assert.equal(proof.provider, "tavus");
+assert.equal(proof.new_tavus_conversation_created, true);
+assert.equal(proof.direct_tavus_api_call_from_codex, false);
 assert.equal(proof.server_side_memory_lookup_attempted, true);
 assert.equal(proof.server_side_memory_context_applied, true);
 assert.equal(proof.tavus_conversational_context_attached, true);
-assert.equal(proof.customer_button_changed, false);
-assert.equal(proof.new_tavus_conversation_created, true);
 assert.equal(proof.tavus_room_joined, false);
-
+assert.equal(proof.customer_button_changed, false);
 assert.equal(proof.memory_stores_used, false);
 assert.equal(proof.custom_greeting_memory_injection, false);
 assert.equal(proof.live_hermes_called, false);
 assert.equal(proof.openai_called, false);
+assert.equal(proof.codex_openai_escalation, false);
 assert.equal(proof.ollama_generate_called, false);
 assert.equal(proof.resend_called, false);
 assert.equal(proof.production_database_mutated, false);
 assert.equal(proof.production_memory_persistence_used, false);
+assert.equal(proof.production_memory_database_mutated, false);
 assert.equal(proof.outbound_action_taken, false);
 assert.equal(proof.actual_conversation_url_stored, false);
+assert.equal(proof.room_url_stored, false);
 assert.equal(proof.prompt_text_included, false);
 assert.equal(proof.memory_summary_included, false);
 assert.equal(proof.hash_values_included, false);
@@ -102,6 +93,7 @@ assert.equal(proof.transcript_content_messages_included, false);
 assert.equal(proof.api_key_included, false);
 
 const forbiddenSubstrings = [
+  "DANI-RET-",
   "daily.co",
   "tavus.daily",
   "The visitor inquired",
@@ -117,14 +109,9 @@ const forbiddenSubstrings = [
 ];
 
 for (const forbidden of forbiddenSubstrings) {
-  assert.equal(combined.includes(forbidden), false, `T25 proof leaked ${forbidden}`);
+  assert.equal(combined.includes(forbidden), false, `T31 proof leaked ${forbidden}`);
 }
 
-assert.equal(/[a-f0-9]{64}/i.test(combined), false, "T25 proof must not include hash values");
+assert.equal(/[a-f0-9]{64}/i.test(combined), false, "T31 proof must not include hash values");
 
-const tavusPlayerSource = await readFile("components/TavusPlayer.tsx", "utf8");
-assert.match(tavusPlayerSource, /fetch\('\/api\/conversation\/start', \{ method: 'POST' \}\)/);
-assert.equal(tavusPlayerSource.includes("memory_context"), false);
-assert.equal(tavusPlayerSource.includes("JSON.stringify"), false);
-
-console.log("Hermes hosted normal-route memory start T25 proof checks passed");
+console.log("Hermes return-code live conversation start T31 proof checks passed");

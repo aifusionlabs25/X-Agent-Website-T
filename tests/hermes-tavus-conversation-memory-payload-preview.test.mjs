@@ -15,7 +15,7 @@ const openGates = {
 const tavusConfig = {
   personaId: "persona_preview_test",
   replicaId: "replica_preview_test",
-  maxCallSeconds: 120,
+  maxCallSeconds: 720,
   absentTimeout: 30,
   leftTimeout: 5,
 };
@@ -139,7 +139,7 @@ async function main() {
   assert.equal(body.custom_greeting, "Hey, welcome. I am Dani. Thanks for dropping in. What are you most curious about today.");
   assert.equal(body.callback_url, "https://preview.invalid/api/webhook");
   assert.deepEqual(body.properties, {
-    max_call_duration: 120,
+    max_call_duration: 720,
     participant_absent_timeout: 30,
     participant_left_timeout: 5,
   });

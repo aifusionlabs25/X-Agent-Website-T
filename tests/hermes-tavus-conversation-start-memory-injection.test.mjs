@@ -20,7 +20,7 @@ const openGates = {
 const tavusConfig = {
   personaId: "persona_start_test",
   replicaId: "replica_start_test",
-  maxCallSeconds: 120,
+  maxCallSeconds: 720,
   absentTimeout: 30,
   leftTimeout: 5,
 };
