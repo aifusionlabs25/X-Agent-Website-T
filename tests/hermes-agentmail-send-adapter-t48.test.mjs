@@ -6,6 +6,7 @@ import {
   buildAgentMailSendAdapterReadiness,
   prepareAgentMailControlledSend,
   readAgentMailSendAdapterMode,
+  runAgentMailPostSessionSends,
 } from "../lib/xagent/agentMailSendAdapter.mjs";
 import { buildHermesEmailCommunicationPlan } from "../lib/xagent/hermesEmailCommunicationsOperator.mjs";
 
@@ -15,6 +16,8 @@ const baseAgentMailEnv = {
   XAGENT_HERMES_AGENTMAIL_ADAPTER_KILL_SWITCH: "false",
   XAGENT_DANI_AGENTMAIL_ADDRESS: "danixagent@agentmail.to",
   AGENTMAIL_API_KEY: "am_us_inbox_send_adapter_secret",
+  UPSTASH_REDIS_REST_URL: "https://unit-test-upstash.invalid",
+  UPSTASH_REDIS_REST_TOKEN: "unit-test-token",
 };
 
 const previewEnv = {
@@ -28,6 +31,7 @@ const previewEnv = {
 const liveRequestedEnv = {
   ...previewEnv,
   XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_MODE: "live",
+  XAGENT_HERMES_EMAIL_ADMIN_RECIPIENT: "admin@example.com",
 };
 
 const transcript = [
@@ -64,6 +68,74 @@ function buildAction() {
     },
   );
   return plan.actions[0];
+}
+
+function buildActions() {
+  const plan = buildHermesEmailCommunicationPlan(
+    {
+      provider_conversation_id: "conv_agentmail_send_adapter_001",
+      transcript,
+      transcriptMetadata: {},
+      memoryOperatorResult: {
+        memory_record_stored: true,
+        memory_record_id: "hxemr_send_adapter",
+      },
+    },
+    {
+      env: {
+        XAGENT_HERMES_EMAIL_ACTIONS_PROVIDER: "agentmail",
+      },
+      now: "2026-06-21T15:00:00.000Z",
+    },
+  );
+  return plan.actions;
+}
+
+function createMockAgentMailFetch() {
+  const redisStore = new Map();
+  const calls = [];
+  const fetchImpl = async (url, init = {}) => {
+    if (url === "https://unit-test-upstash.invalid/pipeline") {
+      const commands = JSON.parse(init.body);
+      return {
+        ok: true,
+        status: 200,
+        async json() {
+          return commands.map(([command, key, value]) => {
+            if (command === "SET") {
+              redisStore.set(key, value);
+              return { result: "OK" };
+            }
+            if (command === "GET") {
+              return { result: redisStore.get(key) ?? null };
+            }
+            return { error: `Unsupported command ${command}` };
+          });
+        },
+      };
+    }
+    calls.push({ url, init });
+    assert.equal(url, "https://api.agentmail.to/v0/inboxes/danixagent%40agentmail.to/messages/send");
+    assert.equal(init.method, "POST");
+    assert.equal(init.headers.Authorization, "Bearer am_us_inbox_send_adapter_secret");
+    const body = JSON.parse(init.body);
+    assert.match(body.subject, /Dani|session|summary|intel|talking/i);
+    assert.equal(typeof body.text, "string");
+    assert.equal(body.text.length > 20, true);
+    assert.equal(Array.isArray(body.labels), true);
+    assert.equal(body.headers["X-XAgent-Conversation-ID"], "conv_agentmail_send_adapter_001");
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return {
+          message_id: `msg_${calls.length}`,
+          thread_id: `thread_${calls.length}`,
+        };
+      },
+    };
+  };
+  return { fetchImpl, calls, redisStore };
 }
 
 function assertNoLeak(value) {
@@ -118,10 +190,87 @@ assert.equal(readAgentMailSendAdapterMode({ XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER
   assert.equal(readiness.agentmail_send_adapter_mode, "live");
   assert.equal(readiness.agentmail_send_adapter_live_mode_requested, true);
   assert.equal(readiness.agentmail_send_adapter_ready_for_t49_one_send_test, true);
-  assert.equal(readiness.agentmail_live_calls_enabled, false);
+  assert.equal(readiness.agentmail_admin_recipient_configured, true);
+  assert.equal(readiness.agentmail_action_ledger_persistence_enabled, true);
+  assert.equal(readiness.agentmail_live_calls_enabled, true);
   assert.equal(readiness.agentmail_send_attempted, false);
   assert.equal(readiness.agentmail_message_sent, false);
   assertNoLeak(readiness);
+}
+
+{
+  const { fetchImpl, calls, redisStore } = createMockAgentMailFetch();
+  const result = await runAgentMailPostSessionSends(
+    {
+      provider_conversation_id: "conv_agentmail_send_adapter_001",
+      actions: buildActions(),
+      outboundContactEmail: "test-recipient@example.com",
+    },
+    {
+      env: liveRequestedEnv,
+      fetchImpl,
+    },
+  );
+  assert.equal(calls.length, 3);
+  assert.equal(redisStore.size, 3);
+  const sentTo = calls.map((call) => JSON.parse(call.init.body).to);
+  assert.deepEqual(sentTo, [
+    "test-recipient@example.com",
+    "admin@example.com",
+    "admin@example.com",
+  ]);
+  assert.equal(result.agentmail_post_session_send_attempted, true);
+  assert.equal(result.agentmail_post_session_send_status, "sent_or_partially_sent");
+  assert.equal(result.agentmail_send_adapter_mode, "live");
+  assert.equal(result.agentmail_message_sent, true);
+  assert.equal(result.sent_count, 3);
+  assert.equal(result.skipped_count, 0);
+  assert.deepEqual(result.sent_action_types, [
+    "email.user_followup",
+    "email.admin_summary",
+    "email.lead_intel",
+  ]);
+  assert.equal(result.live_agentmail_called, true);
+  assert.equal(result.outbound_action_taken, true);
+  assert.equal(result.action_claim_allowed, true);
+  assertNoLeak(result);
+
+  const duplicate = await runAgentMailPostSessionSends(
+    {
+      provider_conversation_id: "conv_agentmail_send_adapter_001",
+      actions: buildActions(),
+      outboundContactEmail: "test-recipient@example.com",
+    },
+    {
+      env: liveRequestedEnv,
+      fetchImpl,
+    },
+  );
+  assert.equal(calls.length, 3);
+  assert.equal(duplicate.sent_count, 0);
+  assert.equal(duplicate.agentmail_message_sent, false);
+  assert.equal(duplicate.send_results.every((item) => item.send_status === "duplicate_send_prevented"), true);
+  assertNoLeak(duplicate);
+}
+
+{
+  const { fetchImpl, calls } = createMockAgentMailFetch();
+  const result = await runAgentMailPostSessionSends(
+    {
+      provider_conversation_id: "conv_agentmail_send_adapter_001",
+      actions: buildActions(),
+    },
+    {
+      env: liveRequestedEnv,
+      fetchImpl,
+    },
+  );
+  assert.equal(calls.length, 2);
+  assert.equal(result.sent_count, 2);
+  assert.equal(result.send_results[0].send_status, "recipient_unavailable");
+  assert.equal(result.send_results[1].agentmail_message_sent, true);
+  assert.equal(result.send_results[2].agentmail_message_sent, true);
+  assertNoLeak(result);
 }
 
 {

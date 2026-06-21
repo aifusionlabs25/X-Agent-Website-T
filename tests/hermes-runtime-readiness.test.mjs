@@ -136,6 +136,8 @@ const agentMailLiveRequested = buildXAgentRuntimeReadiness({
     XAGENT_DANI_AGENTMAIL_SEND_ADAPTER_PILOT_ENABLED: "true",
     XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_KILL_SWITCH: "false",
     XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_MODE: "live",
+    UPSTASH_REDIS_REST_URL: "https://unit-test-upstash.invalid",
+    UPSTASH_REDIS_REST_TOKEN: "unit-test-token",
   },
   now: "2026-06-19T19:00:00.000Z",
 });
@@ -143,7 +145,7 @@ assert.equal(agentMailLiveRequested.agentmail_send_adapter_env_gates_open, true)
 assert.equal(agentMailLiveRequested.agentmail_send_adapter_mode, "live");
 assert.equal(agentMailLiveRequested.agentmail_send_adapter_live_mode_requested, true);
 assert.equal(agentMailLiveRequested.agentmail_send_adapter_ready_for_t49_one_send_test, true);
-assert.equal(agentMailLiveRequested.agentmail_live_calls_enabled, false);
+assert.equal(agentMailLiveRequested.agentmail_live_calls_enabled, true);
 
 const unsafeSerialized = JSON.stringify(open);
 const forbiddenExactKeys = new Set([

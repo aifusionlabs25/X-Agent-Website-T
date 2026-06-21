@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import {
+  areEmailOutboundContactStoreGatesOpen,
   buildEmailMemoryRecordFromTranscript,
+  readConversationOutboundContactEmail,
   readStoredEmailMemoryContext,
   storeConversationEmailMappingForStart,
   storeEmailMemoryFromConversationTranscript,
@@ -21,6 +23,13 @@ const envOpen = {
   XAGENT_EMAIL_IDENTITY_SALT: "unit-test-production-shaped-salt",
   UPSTASH_REDIS_REST_URL: "https://unit-test-upstash.invalid",
   UPSTASH_REDIS_REST_TOKEN: "unit-test-token",
+};
+
+const envOutboundContactOpen = {
+  ...envOpen,
+  XAGENT_EMAIL_OUTBOUND_CONTACT_STORE_ENABLED: "true",
+  XAGENT_DANI_EMAIL_OUTBOUND_CONTACT_STORE_PILOT_ENABLED: "true",
+  XAGENT_EMAIL_OUTBOUND_CONTACT_STORE_KILL_SWITCH: "false",
 };
 
 function createMockRedisFetch() {
@@ -121,7 +130,29 @@ const mappingResult = await storeConversationEmailMappingForStart(
   { env: envOpen, fetchImpl },
 );
 assert.equal(mappingResult.email_memory_mapping_written, true);
+assert.equal(mappingResult.outbound_contact_email_stored, false);
 assertNoRawSensitiveValue([...store.values()]);
+
+assert.equal(areEmailOutboundContactStoreGatesOpen(envOpen), false);
+assert.equal(areEmailOutboundContactStoreGatesOpen(envOutboundContactOpen), true);
+
+const outboundMapping = await storeConversationEmailMappingForStart(
+  {
+    requestBody: { email: "Send-To-Me@Example.com", display_name: "Rob" },
+    session_id: "xagent_session_store_test_outbound_001",
+    provider_conversation_id: "conv_store_test_outbound_001",
+    started_at: 1760000000000,
+  },
+  { env: envOutboundContactOpen, fetchImpl },
+);
+assert.equal(outboundMapping.email_memory_mapping_written, true);
+assert.equal(outboundMapping.outbound_contact_email_stored, true);
+assert.equal(outboundMapping.normalized_email_stored, true);
+const outboundContact = await readConversationOutboundContactEmail(
+  "conv_store_test_outbound_001",
+  { env: envOutboundContactOpen, fetchImpl },
+);
+assert.equal(outboundContact, "send-to-me@example.com");
 
 const record = buildEmailMemoryRecordFromTranscript({
   mapping: JSON.parse([...store.values()][0]),
