@@ -103,6 +103,7 @@ async function main() {
   assert.match(prompt, /Internal continuity context for Dani/);
   assert.match(prompt, /returning-user memory is available/);
   assert.match(prompt, /This visitor completed the website memory check-in before the Tavus session started/);
+  assert.match(prompt, /app-owned contact identity from the website check-in/);
   assert.match(prompt, /Approved prior-session notes are available/);
   assert.match(prompt, /Prior context summary:/);
   assert.match(prompt, /The visitor inquired about how to effectively summarize Tavus conversations/);

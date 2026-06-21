@@ -96,6 +96,10 @@ const transcript = [
     role: "user",
     content: "Let's shoot for Tuesday at 10 a.m. or 2 p.m. and send the invite to rvics@gmail.com.",
   },
+  {
+    role: "agent",
+    content: "Our team will send a confirmation email and can use Tuesday at 2 p.m. as the requested technical call time.",
+  },
 ];
 
 const summary = summarizeTranscriptForMemory(transcript);
@@ -103,6 +107,7 @@ assert.match(summary.summary, /soccer products/i);
 assert.match(summary.summary, /product database/i);
 assert.match(summary.summary, /bottom-right icon/i);
 assert.match(summary.summary, /Tuesday at 10 a\.m\. or 2 p\.m\./i);
+assert.match(summary.summary, /Tuesday at 2 p\.m\./i);
 assertNoRawSensitiveValue(summary);
 
 const { fetchImpl, store } = createMockRedisFetch();
@@ -134,6 +139,7 @@ assert.equal(record.raw_transcript_stored, false);
 assert.equal(record.production_memory_database_mutated, true);
 assert.match(record.recalled_memory_summary, /soccer products/i);
 assert.match(record.recalled_memory_summary, /Tuesday at 10 a\.m\. or 2 p\.m\./i);
+assert.match(record.recalled_memory_summary, /Tuesday at 2 p\.m\./i);
 assertNoRawSensitiveValue(record);
 
 const storeResult = await storeEmailMemoryFromConversationTranscript(
