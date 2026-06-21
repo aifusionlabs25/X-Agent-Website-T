@@ -13,6 +13,10 @@ assert.equal(closed.xagent_session_identity_supported, true);
 assert.equal(closed.memory_context_injection_code_present, true);
 assert.equal(closed.tavus_conversational_context_supported, true);
 assert.equal(closed.memory_context_env_gates_open, false);
+assert.equal(closed.hermes_memory_operator_code_present, true);
+assert.equal(closed.hermes_memory_operator_env_gates_open, false);
+assert.equal(closed.hermes_memory_operator_mode, "embedded");
+assert.equal(closed.hermes_memory_operator_gateway_live_calls_enabled, false);
 assert.equal(closed.normal_customer_button_changed, false);
 assert.equal(closed.tavus_create_conversation_called, false);
 assert.equal(closed.tavus_conversation_created, false);
@@ -31,10 +35,30 @@ const open = buildXAgentRuntimeReadiness({
     XAGENT_TAVUS_MEMORY_CONTEXT_INJECTION_ENABLED: "true",
     XAGENT_DANI_TAVUS_MEMORY_CONTEXT_PILOT_ENABLED: "true",
     XAGENT_TAVUS_MEMORY_CONTEXT_INJECTION_KILL_SWITCH: "false",
+    XAGENT_HERMES_MEMORY_OPERATOR_ENABLED: "true",
+    XAGENT_DANI_HERMES_MEMORY_OPERATOR_PILOT_ENABLED: "true",
+    XAGENT_HERMES_MEMORY_OPERATOR_KILL_SWITCH: "false",
+    XAGENT_HERMES_MEMORY_OPERATOR_MODE: "embedded",
   },
   now: "2026-06-19T19:00:00.000Z",
 });
 assert.equal(open.memory_context_env_gates_open, true);
+assert.equal(open.hermes_memory_operator_env_gates_open, true);
+assert.equal(open.hermes_memory_operator_mode, "embedded");
+assert.equal(open.hermes_memory_operator_gateway_live_calls_enabled, false);
+
+const gatewayOpen = buildXAgentRuntimeReadiness({
+  env: {
+    XAGENT_HERMES_MEMORY_OPERATOR_ENABLED: "true",
+    XAGENT_DANI_HERMES_MEMORY_OPERATOR_PILOT_ENABLED: "true",
+    XAGENT_HERMES_MEMORY_OPERATOR_KILL_SWITCH: "false",
+    XAGENT_HERMES_MEMORY_OPERATOR_MODE: "gateway",
+  },
+  now: "2026-06-19T19:00:00.000Z",
+});
+assert.equal(gatewayOpen.hermes_memory_operator_env_gates_open, true);
+assert.equal(gatewayOpen.hermes_memory_operator_mode, "gateway");
+assert.equal(gatewayOpen.hermes_memory_operator_gateway_live_calls_enabled, true);
 
 const unsafeSerialized = JSON.stringify(open);
 const forbiddenExactKeys = new Set([
@@ -57,6 +81,8 @@ for (const key of Object.keys(open)) {
 
 const forbiddenSubstrings = [
   "TAVUS_API_KEY",
+  "XAGENT_HERMES_GATEWAY_TOKEN",
+  "XAGENT_HERMES_GATEWAY_URL",
   "Bearer ",
   "Internal continuity context",
   "The visitor inquired",
@@ -83,6 +109,10 @@ try {
       XAGENT_TAVUS_MEMORY_CONTEXT_INJECTION_ENABLED: "true",
       XAGENT_DANI_TAVUS_MEMORY_CONTEXT_PILOT_ENABLED: "true",
       XAGENT_TAVUS_MEMORY_CONTEXT_INJECTION_KILL_SWITCH: "false",
+      XAGENT_HERMES_MEMORY_OPERATOR_ENABLED: "true",
+      XAGENT_DANI_HERMES_MEMORY_OPERATOR_PILOT_ENABLED: "true",
+      XAGENT_HERMES_MEMORY_OPERATOR_KILL_SWITCH: "false",
+      XAGENT_HERMES_MEMORY_OPERATOR_MODE: "embedded",
     },
   });
   assert.equal(fetchCalled, false);
