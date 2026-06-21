@@ -17,6 +17,18 @@ assert.equal(closed.hermes_memory_operator_code_present, true);
 assert.equal(closed.hermes_memory_operator_env_gates_open, false);
 assert.equal(closed.hermes_memory_operator_mode, "embedded");
 assert.equal(closed.hermes_memory_operator_gateway_live_calls_enabled, false);
+assert.equal(closed.hermes_email_actions_code_present, true);
+assert.equal(closed.hermes_email_actions_env_gates_open, false);
+assert.equal(closed.hermes_email_actions_mode, "draft_only");
+assert.equal(closed.hermes_email_actions_provider, "none");
+assert.equal(closed.hermes_email_actions_send_mode_requested, false);
+assert.equal(closed.hermes_email_actions_live_send_enabled, false);
+assert.equal(closed.agentmail_adapter_code_present, true);
+assert.equal(closed.agentmail_adapter_env_gates_open, false);
+assert.equal(closed.agentmail_inbox_address_configured, false);
+assert.equal(closed.agentmail_inbox_matches_dani, false);
+assert.equal(closed.agentmail_api_key_present, false);
+assert.equal(closed.agentmail_live_calls_enabled, false);
 assert.equal(closed.normal_customer_button_changed, false);
 assert.equal(closed.tavus_create_conversation_called, false);
 assert.equal(closed.tavus_conversation_created, false);
@@ -39,6 +51,16 @@ const open = buildXAgentRuntimeReadiness({
     XAGENT_DANI_HERMES_MEMORY_OPERATOR_PILOT_ENABLED: "true",
     XAGENT_HERMES_MEMORY_OPERATOR_KILL_SWITCH: "false",
     XAGENT_HERMES_MEMORY_OPERATOR_MODE: "embedded",
+    XAGENT_HERMES_EMAIL_ACTIONS_ENABLED: "true",
+    XAGENT_DANI_HERMES_EMAIL_ACTIONS_PILOT_ENABLED: "true",
+    XAGENT_HERMES_EMAIL_ACTIONS_KILL_SWITCH: "false",
+    XAGENT_HERMES_EMAIL_ACTIONS_MODE: "draft_only",
+    XAGENT_HERMES_EMAIL_ACTIONS_PROVIDER: "agentmail",
+    XAGENT_HERMES_AGENTMAIL_ADAPTER_ENABLED: "true",
+    XAGENT_DANI_AGENTMAIL_ADAPTER_PILOT_ENABLED: "true",
+    XAGENT_HERMES_AGENTMAIL_ADAPTER_KILL_SWITCH: "false",
+    XAGENT_DANI_AGENTMAIL_ADDRESS: "danixagent@agentmail.to",
+    AGENTMAIL_API_KEY: "am_us_inbox_runtime_test_secret",
   },
   now: "2026-06-19T19:00:00.000Z",
 });
@@ -46,6 +68,16 @@ assert.equal(open.memory_context_env_gates_open, true);
 assert.equal(open.hermes_memory_operator_env_gates_open, true);
 assert.equal(open.hermes_memory_operator_mode, "embedded");
 assert.equal(open.hermes_memory_operator_gateway_live_calls_enabled, false);
+assert.equal(open.hermes_email_actions_env_gates_open, true);
+assert.equal(open.hermes_email_actions_mode, "draft_only");
+assert.equal(open.hermes_email_actions_provider, "agentmail");
+assert.equal(open.hermes_email_actions_send_mode_requested, false);
+assert.equal(open.hermes_email_actions_live_send_enabled, false);
+assert.equal(open.agentmail_adapter_env_gates_open, true);
+assert.equal(open.agentmail_inbox_address_configured, true);
+assert.equal(open.agentmail_inbox_matches_dani, true);
+assert.equal(open.agentmail_api_key_present, true);
+assert.equal(open.agentmail_live_calls_enabled, false);
 
 const gatewayOpen = buildXAgentRuntimeReadiness({
   env: {
@@ -59,6 +91,22 @@ const gatewayOpen = buildXAgentRuntimeReadiness({
 assert.equal(gatewayOpen.hermes_memory_operator_env_gates_open, true);
 assert.equal(gatewayOpen.hermes_memory_operator_mode, "gateway");
 assert.equal(gatewayOpen.hermes_memory_operator_gateway_live_calls_enabled, true);
+
+const emailSendOpen = buildXAgentRuntimeReadiness({
+  env: {
+    XAGENT_HERMES_EMAIL_ACTIONS_ENABLED: "true",
+    XAGENT_DANI_HERMES_EMAIL_ACTIONS_PILOT_ENABLED: "true",
+    XAGENT_HERMES_EMAIL_ACTIONS_KILL_SWITCH: "false",
+    XAGENT_HERMES_EMAIL_ACTIONS_MODE: "send",
+    XAGENT_HERMES_EMAIL_ACTIONS_PROVIDER: "resend",
+  },
+  now: "2026-06-19T19:00:00.000Z",
+});
+assert.equal(emailSendOpen.hermes_email_actions_env_gates_open, true);
+assert.equal(emailSendOpen.hermes_email_actions_mode, "send");
+assert.equal(emailSendOpen.hermes_email_actions_provider, "resend");
+assert.equal(emailSendOpen.hermes_email_actions_send_mode_requested, true);
+assert.equal(emailSendOpen.hermes_email_actions_live_send_enabled, false);
 
 const unsafeSerialized = JSON.stringify(open);
 const forbiddenExactKeys = new Set([
@@ -83,6 +131,8 @@ const forbiddenSubstrings = [
   "TAVUS_API_KEY",
   "XAGENT_HERMES_GATEWAY_TOKEN",
   "XAGENT_HERMES_GATEWAY_URL",
+  "AGENTMAIL_API_KEY",
+  "am_us_inbox_runtime_test_secret",
   "Bearer ",
   "Internal continuity context",
   "The visitor inquired",

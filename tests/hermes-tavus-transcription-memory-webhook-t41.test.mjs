@@ -14,6 +14,11 @@ const envOpen = {
   XAGENT_DANI_HERMES_MEMORY_OPERATOR_PILOT_ENABLED: "true",
   XAGENT_HERMES_MEMORY_OPERATOR_KILL_SWITCH: "false",
   XAGENT_HERMES_MEMORY_OPERATOR_MODE: "embedded",
+  XAGENT_HERMES_EMAIL_ACTIONS_ENABLED: "true",
+  XAGENT_DANI_HERMES_EMAIL_ACTIONS_PILOT_ENABLED: "true",
+  XAGENT_HERMES_EMAIL_ACTIONS_KILL_SWITCH: "false",
+  XAGENT_HERMES_EMAIL_ACTIONS_MODE: "draft_only",
+  XAGENT_HERMES_EMAIL_ACTIONS_PROVIDER: "agentmail",
   XAGENT_EMAIL_IDENTITY_SALT: "unit-test-production-shaped-salt",
   XAGENT_TAVUS_CALLBACK_TOKEN: "unit-test-callback-token",
   UPSTASH_REDIS_REST_URL: "https://unit-test-upstash.invalid",
@@ -102,6 +107,19 @@ assert.equal(result.hermes_operator_invoked, true);
 assert.equal(result.hermes_operator_mode, "embedded");
 assert.equal(result.hermes_operator_status, "completed");
 assert.equal(result.hermes_gateway_called, false);
+assert.equal(result.hermes_email_actions_attempted, true);
+assert.equal(result.hermes_email_actions_planned, true);
+assert.equal(result.hermes_email_actions_status, "draft_plan_created");
+assert.equal(result.hermes_email_actions_mode, "draft_only");
+assert.equal(result.hermes_email_actions_provider, "agentmail");
+assert.equal(result.hermes_email_action_count, 3);
+assert.equal(result.hermes_email_draft_count, 3);
+assert.equal(result.hermes_email_send_count, 0);
+assert.equal(result.agentmail_inbox_created, false);
+assert.equal(result.agentmail_called, false);
+assert.equal(result.live_agentmail_called, false);
+assert.equal(result.action_claim_allowed, false);
+assert.equal(result.operator_review_required_before_send, true);
 assert.equal(result.live_tavus_called, false);
 assert.equal(result.live_hermes_called, false);
 assert.equal(result.openai_called, false);
