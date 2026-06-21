@@ -10,6 +10,10 @@ const envOpen = {
   XAGENT_TAVUS_TRANSCRIPTION_MEMORY_WEBHOOK_ENABLED: "true",
   XAGENT_DANI_TAVUS_TRANSCRIPTION_MEMORY_WEBHOOK_PILOT_ENABLED: "true",
   XAGENT_TAVUS_TRANSCRIPTION_MEMORY_WEBHOOK_KILL_SWITCH: "false",
+  XAGENT_HERMES_MEMORY_OPERATOR_ENABLED: "true",
+  XAGENT_DANI_HERMES_MEMORY_OPERATOR_PILOT_ENABLED: "true",
+  XAGENT_HERMES_MEMORY_OPERATOR_KILL_SWITCH: "false",
+  XAGENT_HERMES_MEMORY_OPERATOR_MODE: "embedded",
   XAGENT_EMAIL_IDENTITY_SALT: "unit-test-production-shaped-salt",
   XAGENT_TAVUS_CALLBACK_TOKEN: "unit-test-callback-token",
   UPSTASH_REDIS_REST_URL: "https://unit-test-upstash.invalid",
@@ -93,6 +97,11 @@ const result = await handleTavusTranscriptionMemoryWebhook(callbackPayload, {
 assert.equal(result.transcription_ready_processed, true);
 assert.equal(result.memory_record_stored, true);
 assert.equal(result.memory_store_status, "stored");
+assert.equal(result.hermes_operator_attempted, true);
+assert.equal(result.hermes_operator_invoked, true);
+assert.equal(result.hermes_operator_mode, "embedded");
+assert.equal(result.hermes_operator_status, "completed");
+assert.equal(result.hermes_gateway_called, false);
 assert.equal(result.live_tavus_called, false);
 assert.equal(result.live_hermes_called, false);
 assert.equal(result.openai_called, false);
