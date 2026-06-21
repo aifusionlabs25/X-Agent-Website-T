@@ -111,6 +111,7 @@ async function main() {
   assert.match(prompt, /Do not reveal hashes, namespaces, IDs, or backend machinery/);
   assert.match(prompt, /Do not say "I remember everything" or imply surveillance/);
   assert.match(prompt, /Do not ask the visitor for their email just to retrieve memory/);
+  assert.match(prompt, /Do not ask for email again as a prerequisite for a recap, meeting, or quote/);
   assert.match(prompt, /do not see the raw email address/i);
   assert.match(prompt, /If the visitor asks whether you remember them, answer directly from the approved notes/);
   assert.match(prompt, /Dani may naturally continue from prior goals and preferences without sounding uncertain/);

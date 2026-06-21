@@ -70,3 +70,10 @@ If the visitor asks Dani to send a recap:
 - Add confirmation-gated outbound action tools once the memory loop is stable.
 - Re-test that Dani does not over-ask for email or over-claim completed actions.
 
+## Follow-Up From Session Pair c191 / c08b
+
+The next live test proved the first memory handoff improved: Dani correctly said she had notes from the prior visit and recalled the soccer-products site, lower-right X Agent, product questions, and checkout conversion goal.
+
+The remaining issue was detail retention and follow-up behavior. A prior turn that included both a meeting time and a spoken email was being dropped entirely by the deterministic memory summarizer because it looked like an email-collection turn. That protected raw email, but it also discarded safe details such as Tuesday at 10 a.m. or 2 p.m.
+
+The summarizer now redacts email-like text inside a turn instead of dropping the whole turn, so safe next-step details can survive while raw email stays out of memory. The Tavus continuity prompt also now says not to ask for email again as a prerequisite for a recap, meeting, or quote when returning-user memory context is present.

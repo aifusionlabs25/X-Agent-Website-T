@@ -12,13 +12,15 @@ function includes(source, text) {
 includes(doc, "The rule is not \"Dani can never do these.\"");
 includes(doc, "Dani may only claim the action was completed after the app/tool/backend confirms it.");
 includes(doc, "Apply the T43 persona prompt inside Tavus.");
+includes(doc, "redacts email-like text inside a turn instead of dropping the whole turn");
 includes(promptSource, "returning-user memory is available");
 includes(promptSource, "Do not ask the visitor for their email just to retrieve memory");
+includes(promptSource, "Do not ask for email again as a prerequisite for a recap, meeting, or quote");
 includes(promptSource, "When future app tools confirm an outbound action, Dani may state that confirmed result truthfully.");
+includes(memoryStoreSource, "redactEmailLikeMemoryText");
 includes(memoryStoreSource, "Visitor/business context");
 includes(memoryStoreSource, "Implementation notes");
 includes(memoryStoreSource, "Success or scale signals");
 includes(memoryStoreSource, "Next-step signals");
 
 console.log("Hermes Dani memory behavior T44 checks passed");
-
