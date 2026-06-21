@@ -29,6 +29,13 @@ assert.equal(closed.agentmail_inbox_address_configured, false);
 assert.equal(closed.agentmail_inbox_matches_dani, false);
 assert.equal(closed.agentmail_api_key_present, false);
 assert.equal(closed.agentmail_live_calls_enabled, false);
+assert.equal(closed.agentmail_send_adapter_code_present, true);
+assert.equal(closed.agentmail_send_adapter_env_gates_open, false);
+assert.equal(closed.agentmail_send_adapter_mode, "preview");
+assert.equal(closed.agentmail_send_adapter_live_mode_requested, false);
+assert.equal(closed.agentmail_send_adapter_ready_for_t49_one_send_test, false);
+assert.equal(closed.agentmail_action_ledger_code_present, true);
+assert.equal(closed.agentmail_action_ledger_persistence_enabled, false);
 assert.equal(closed.normal_customer_button_changed, false);
 assert.equal(closed.tavus_create_conversation_called, false);
 assert.equal(closed.tavus_conversation_created, false);
@@ -61,6 +68,10 @@ const open = buildXAgentRuntimeReadiness({
     XAGENT_HERMES_AGENTMAIL_ADAPTER_KILL_SWITCH: "false",
     XAGENT_DANI_AGENTMAIL_ADDRESS: "danixagent@agentmail.to",
     AGENTMAIL_API_KEY: "am_us_inbox_runtime_test_secret",
+    XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_ENABLED: "true",
+    XAGENT_DANI_AGENTMAIL_SEND_ADAPTER_PILOT_ENABLED: "true",
+    XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_KILL_SWITCH: "false",
+    XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_MODE: "preview",
   },
   now: "2026-06-19T19:00:00.000Z",
 });
@@ -78,6 +89,12 @@ assert.equal(open.agentmail_inbox_address_configured, true);
 assert.equal(open.agentmail_inbox_matches_dani, true);
 assert.equal(open.agentmail_api_key_present, true);
 assert.equal(open.agentmail_live_calls_enabled, false);
+assert.equal(open.agentmail_send_adapter_env_gates_open, true);
+assert.equal(open.agentmail_send_adapter_mode, "preview");
+assert.equal(open.agentmail_send_adapter_live_mode_requested, false);
+assert.equal(open.agentmail_send_adapter_ready_for_t49_one_send_test, false);
+assert.equal(open.agentmail_action_ledger_code_present, true);
+assert.equal(open.agentmail_action_ledger_persistence_enabled, false);
 
 const gatewayOpen = buildXAgentRuntimeReadiness({
   env: {
@@ -107,6 +124,26 @@ assert.equal(emailSendOpen.hermes_email_actions_mode, "send");
 assert.equal(emailSendOpen.hermes_email_actions_provider, "resend");
 assert.equal(emailSendOpen.hermes_email_actions_send_mode_requested, true);
 assert.equal(emailSendOpen.hermes_email_actions_live_send_enabled, false);
+
+const agentMailLiveRequested = buildXAgentRuntimeReadiness({
+  env: {
+    XAGENT_HERMES_AGENTMAIL_ADAPTER_ENABLED: "true",
+    XAGENT_DANI_AGENTMAIL_ADAPTER_PILOT_ENABLED: "true",
+    XAGENT_HERMES_AGENTMAIL_ADAPTER_KILL_SWITCH: "false",
+    XAGENT_DANI_AGENTMAIL_ADDRESS: "danixagent@agentmail.to",
+    AGENTMAIL_API_KEY: "am_us_inbox_runtime_test_secret",
+    XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_ENABLED: "true",
+    XAGENT_DANI_AGENTMAIL_SEND_ADAPTER_PILOT_ENABLED: "true",
+    XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_KILL_SWITCH: "false",
+    XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_MODE: "live",
+  },
+  now: "2026-06-19T19:00:00.000Z",
+});
+assert.equal(agentMailLiveRequested.agentmail_send_adapter_env_gates_open, true);
+assert.equal(agentMailLiveRequested.agentmail_send_adapter_mode, "live");
+assert.equal(agentMailLiveRequested.agentmail_send_adapter_live_mode_requested, true);
+assert.equal(agentMailLiveRequested.agentmail_send_adapter_ready_for_t49_one_send_test, true);
+assert.equal(agentMailLiveRequested.agentmail_live_calls_enabled, false);
 
 const unsafeSerialized = JSON.stringify(open);
 const forbiddenExactKeys = new Set([
