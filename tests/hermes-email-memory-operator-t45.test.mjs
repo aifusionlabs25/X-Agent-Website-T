@@ -150,6 +150,14 @@ async function seedMapping({ env, fetchImpl, providerConversationId }) {
 assert.equal(areHermesMemoryOperatorGatesOpen(embeddedEnv), true);
 assert.equal(readHermesMemoryOperatorMode(embeddedEnv), "embedded");
 assert.equal(readHermesMemoryOperatorMode(gatewayEnv), "gateway");
+assert.equal(areHermesMemoryOperatorGatesOpen({
+  XAGENT_HERMES_MEMORY_OPERATOR_ENABLED: "true ",
+  XAGENT_DANI_HERMES_MEMORY_OPERATOR_PILOT_ENABLED: "true ",
+  XAGENT_HERMES_MEMORY_OPERATOR_KILL_SWITCH: "false ",
+}), true);
+assert.equal(readHermesMemoryOperatorMode({
+  XAGENT_HERMES_MEMORY_OPERATOR_MODE: "embedded ",
+}), "embedded");
 assert.equal(HERMES_EMAIL_MEMORY_OPERATOR_VERSION, "t45_hermes_email_memory_operator_v1");
 
 {
