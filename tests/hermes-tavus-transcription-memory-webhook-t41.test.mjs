@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { storeConversationEmailMappingForStart } from "../lib/xagent/emailMemoryStore.mjs";
+import { buildHermesEmailActionStatusLookup } from "../lib/xagent/hermesEmailActionStatusStore.mjs";
 import { handleTavusTranscriptionMemoryWebhook } from "../lib/xagent/tavusTranscriptionMemoryWebhook.mjs";
 
 const envOpen = {
@@ -115,6 +116,9 @@ assert.equal(result.hermes_email_actions_provider, "agentmail");
 assert.equal(result.hermes_email_action_count, 3);
 assert.equal(result.hermes_email_draft_count, 3);
 assert.equal(result.hermes_email_send_count, 0);
+assert.equal(result.hermes_email_action_status_store_attempted, true);
+assert.equal(result.hermes_email_action_status_stored, true);
+assert.equal(result.hermes_email_action_status, "stored");
 assert.equal(result.agentmail_inbox_created, false);
 assert.equal(result.agentmail_called, false);
 assert.equal(result.live_agentmail_called, false);
@@ -131,6 +135,21 @@ assertNoUnsafeValue(result);
 assertNoUnsafeValue([...store.values()]);
 assert.match(JSON.stringify([...store.values()]), /World Cup Soccer/);
 assert.match(JSON.stringify([...store.values()]), /product database/);
+
+const actionStatus = await buildHermesEmailActionStatusLookup(
+  { provider_conversation_id: "conv_webhook_test_001" },
+  { env: envOpen, fetchImpl },
+);
+assert.equal(actionStatus.email_action_status_checked, true);
+assert.equal(actionStatus.email_action_status_available, true);
+assert.equal(actionStatus.email_action_status, "draft_plan_created");
+assert.equal(actionStatus.action_count, 3);
+assert.equal(actionStatus.draft_count, 3);
+assert.equal(actionStatus.send_count, 0);
+assert.equal(actionStatus.agentmail_send_attempted, false);
+assert.equal(actionStatus.agentmail_message_sent, false);
+assert.equal(actionStatus.outbound_action_taken, false);
+assertNoUnsafeValue(actionStatus);
 
 await assert.rejects(
   () => handleTavusTranscriptionMemoryWebhook(callbackPayload, {

@@ -55,6 +55,7 @@
     "test:hermes-email-communications-operator-t46": "node tests/hermes-email-communications-operator-t46.test.mjs",
     "test:hermes-agentmail-adapter-readiness-t47": "node tests/hermes-agentmail-adapter-readiness-t47.test.mjs",
     "test:hermes-agentmail-send-adapter-t48": "node tests/hermes-agentmail-send-adapter-t48.test.mjs",
+    "test:hermes-email-action-status-store-t48-1": "node tests/hermes-email-action-status-store-t48-1.test.mjs",
     "hermes:manual-tavus-transcript-dry-run": "node scripts/manual-tavus-transcript-dry-run.mjs",
     "hermes:manual-tavus-live-memory-start": "node scripts/manual-tavus-live-memory-start.mjs",
     "hermes:manual-hosted-tavus-memory-start": "node scripts/manual-hosted-tavus-memory-start.mjs"
