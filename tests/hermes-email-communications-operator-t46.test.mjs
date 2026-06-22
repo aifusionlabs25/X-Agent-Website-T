@@ -142,18 +142,28 @@ assert.equal(readHermesEmailActionProvider({ XAGENT_HERMES_EMAIL_ACTIONS_PROVIDE
   const adminSummary = result.actions.find((action) => action.action_type === "email.admin_summary");
   const leadIntel = result.actions.find((action) => action.action_type === "email.lead_intel");
   assert.match(userFollowup.body_text_preview, /Hi Rob/i);
+  assert.match(userFollowup.body_text_preview, /\n\nDiscussion Summary\n/);
   assert.match(userFollowup.body_text_preview, /Vicks Law Firm/);
   assert.match(userFollowup.body_text_preview, /Tuesday at 10 a\.m\./i);
   assert.match(userFollowup.body_text_preview, /legal intake/i);
+  assert.match(userFollowup.body_text_preview, /\n\nSchedule a Time\n/);
   assert.match(userFollowup.body_text_preview, /30-minute Dani Demo Call/i);
   assert.match(userFollowup.body_text_preview, /https:\/\/calendly\.com\/aifusionlabs/);
+  assert.match(userFollowup.body_text_preview, /\n\nBest regards,\nDani/);
+  assert.equal(userFollowup.body_text_preview.includes("Hi Rob, Thanks"), false);
+  assert.match(adminSummary.body_text_preview, /^New Dani Intake\n\nConversation ID: conv_email_actions_draft_001/m);
   assert.match(adminSummary.body_text_preview, /Conversation ID: conv_email_actions_draft_001/);
+  assert.match(adminSummary.body_text_preview, /\n\nContact \/ Context\n/);
+  assert.match(adminSummary.body_text_preview, /\n\nRequest Details\n/);
   assert.match(adminSummary.body_text_preview, /Calendly CTA included: yes/);
   assert.match(adminSummary.body_text_preview, /visitor requested a meeting\/demo/);
-  assert.match(adminSummary.body_text_preview, /Recommended operator action/i);
+  assert.match(adminSummary.body_text_preview, /\n\nOperator Action Plan\n/);
+  assert.match(leadIntel.subject_preview, /\[PROSPECT SCORE 10\/10\]/);
+  assert.match(leadIntel.body_text_preview, /^Dani Lead Intelligence Report\n\nProspect Score: 10\/10/m);
   assert.match(leadIntel.body_text_preview, /Lead temperature: returning warm lead/i);
+  assert.match(leadIntel.body_text_preview, /\n\nOpportunity Signals\n/);
   assert.match(leadIntel.body_text_preview, /Calendly CTA included: yes/);
-  assert.match(leadIntel.body_text_preview, /Suggested next move/i);
+  assert.match(leadIntel.body_text_preview, /\n\nRecommended Next Steps\n/);
   for (const action of result.actions) {
     assert.equal(action.draft_created, true);
     assert.equal(action.send_attempted, false);
@@ -231,6 +241,7 @@ assert.equal(readHermesEmailActionProvider({ XAGENT_HERMES_EMAIL_ACTIONS_PROVIDE
   assert.equal(plan.email_insight_metadata.calendly_meeting_label, "Dani Demo Call");
   assert.equal(plan.email_insight_metadata.calendly_meeting_length, "30-minute");
   assert.equal(plan.email_insight_metadata.calendly_timezone, "Phoenix, AZ");
+  assert.equal(plan.email_insight_metadata.lead_score, 10);
   assertNoOldTranscriptDumpPhrasing(plan);
   assertNoUnsafeValue(plan);
 }
