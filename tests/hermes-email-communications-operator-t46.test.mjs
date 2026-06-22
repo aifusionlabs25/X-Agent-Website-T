@@ -154,6 +154,9 @@ assert.equal(readHermesEmailActionProvider({ XAGENT_HERMES_EMAIL_ACTIONS_PROVIDE
   assert.match(userFollowup.body_text_preview, /https:\/\/calendly\.com\/aifusionlabs/);
   assert.match(userFollowup.body_text_preview, /will not claim the meeting is scheduled until the booking is confirmed/i);
   assert.match(userFollowup.body_text_preview, /\n\nBest regards,\nDani/);
+  assert.match(userFollowup.body_html_preview, /<h2[^>]*>Discussion Summary<\/h2>/);
+  assert.match(userFollowup.body_html_preview, /<h2[^>]*>Schedule \/ Confirmation<\/h2>/);
+  assert.match(userFollowup.body_html_preview, /href="https:\/\/calendly\.com\/aifusionlabs"/);
   assert.equal(userFollowup.body_text_preview.includes("Hi Rob, Thanks"), false);
   assert.match(adminSummary.body_text_preview, /^New Dani Intake\n\nConversation ID: conv_email_actions_draft_001/m);
   assert.match(adminSummary.body_text_preview, /Conversation ID: conv_email_actions_draft_001/);
@@ -166,6 +169,7 @@ assert.equal(readHermesEmailActionProvider({ XAGENT_HERMES_EMAIL_ACTIONS_PROVIDE
   assert.match(adminSummary.body_text_preview, /\n\nScheduling \/ Follow-up\n/);
   assert.match(adminSummary.body_text_preview, /Do not tell the visitor a meeting is scheduled until Calendly or a human confirms the booking/i);
   assert.match(adminSummary.body_text_preview, /\n\nOperator Action Plan\n/);
+  assert.match(adminSummary.body_html_preview, /<h2[^>]*>Scheduling \/ Follow-up<\/h2>/);
   assert.match(leadIntel.subject_preview, /\[PROSPECT SCORE 10\/10\]/);
   assert.match(leadIntel.body_text_preview, /^Dani Lead Intelligence Report\n\nProspect Score: 10\/10/m);
   assert.match(leadIntel.body_text_preview, /Lead temperature: returning warm lead/i);
@@ -174,6 +178,7 @@ assert.equal(readHermesEmailActionProvider({ XAGENT_HERMES_EMAIL_ACTIONS_PROVIDE
   assert.match(leadIntel.body_text_preview, /Calendly CTA included: yes/);
   assert.match(leadIntel.body_text_preview, /\n\nRecommended Next Steps\n/);
   assert.match(leadIntel.body_text_preview, /Prioritize the requested Tuesday at 10 a\.m\. meeting window/i);
+  assert.match(leadIntel.body_html_preview, /<h2[^>]*>Opportunity Signals<\/h2>/);
   for (const action of result.actions) {
     assert.equal(action.draft_created, true);
     assert.equal(action.send_attempted, false);

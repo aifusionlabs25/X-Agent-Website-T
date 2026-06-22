@@ -121,7 +121,9 @@ function createMockAgentMailFetch() {
     const body = JSON.parse(init.body);
     assert.match(body.subject, /Dani|session|summary|intel|talking/i);
     assert.equal(typeof body.text, "string");
+    assert.equal(typeof body.html, "string");
     assert.equal(body.text.length > 20, true);
+    assert.equal(body.html.includes("<"), true);
     assert.equal(Array.isArray(body.labels), true);
     assert.equal(body.headers["X-XAgent-Conversation-ID"], "conv_agentmail_send_adapter_001");
     return {
@@ -251,6 +253,42 @@ assert.equal(readAgentMailSendAdapterMode({ XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER
   assert.equal(duplicate.agentmail_message_sent, false);
   assert.equal(duplicate.send_results.every((item) => item.send_status === "duplicate_send_prevented"), true);
   assertNoLeak(duplicate);
+}
+
+{
+  const { fetchImpl, calls } = createMockAgentMailFetch();
+  const result = await runAgentMailPostSessionSends(
+    {
+      provider_conversation_id: "conv_agentmail_send_adapter_001",
+      actions: buildActions(),
+      outboundContactEmail: "test-recipient@example.com",
+      transcript: [
+        { role: "system", content: "system-only text should not attach" },
+        { role: "user", content: "Please send a follow-up email for Tuesday at 10 a.m." },
+        { role: "agent", content: "I can capture that request for the team." },
+      ],
+    },
+    {
+      env: liveRequestedEnv,
+      fetchImpl,
+    },
+  );
+  assert.equal(calls.length, 3);
+  const payloads = calls.map((call) => JSON.parse(call.init.body));
+  assert.equal(payloads[0].attachments, undefined);
+  assert.equal(payloads[1].attachments, undefined);
+  assert.equal(payloads[2].attachments.length, 1);
+  assert.equal(payloads[2].attachments[0].filename, "dani-transcript-conv_agentmail_send_adapter_001.txt");
+  assert.equal(payloads[2].attachments[0].content_type, "text/plain");
+  const decoded = Buffer.from(payloads[2].attachments[0].content, "base64").toString("utf8");
+  assert.match(decoded, /^Dani X Agent Transcript/);
+  assert.match(decoded, /Conversation ID: conv_agentmail_send_adapter_001/);
+  assert.match(decoded, /Please send a follow-up email for Tuesday at 10 a\.m\./);
+  assert.equal(decoded.includes("system-only text should not attach"), false);
+  assert.equal(result.send_results[2].attachments_included, true);
+  assert.equal(result.send_results[2].attachment_count, 1);
+  assert.equal(result.send_results[2].transcript_attachment_included, true);
+  assertNoLeak(result);
 }
 
 {

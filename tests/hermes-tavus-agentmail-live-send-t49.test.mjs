@@ -70,9 +70,24 @@ function createMockFetch() {
       const body = JSON.parse(init.body);
       assert.equal(typeof body.subject, "string");
       assert.equal(typeof body.text, "string");
+      assert.equal(typeof body.html, "string");
       assert.equal(body.text.length > 20, true);
+      assert.equal(body.html.includes("<h2"), true);
       assert.equal(Array.isArray(body.labels), true);
       assert.equal(body.headers["X-XAgent-Conversation-ID"], "conv_agentmail_live_webhook_001");
+      if (body.headers["X-XAgent-Action-Type"] === "email.lead_intel") {
+        assert.equal(Array.isArray(body.attachments), true);
+        assert.equal(body.attachments.length, 1);
+        assert.equal(body.attachments[0].filename, "dani-transcript-conv_agentmail_live_webhook_001.txt");
+        assert.equal(body.attachments[0].content_type, "text/plain");
+        const decoded = Buffer.from(body.attachments[0].content, "base64").toString("utf8");
+        assert.match(decoded, /^Dani X Agent Transcript/);
+        assert.match(decoded, /Conversation ID: conv_agentmail_live_webhook_001/);
+        assert.match(decoded, /Please send a follow-up email with a meeting invitation for Tuesday at 10 a\.m\./);
+        assert.equal(decoded.includes("internal system turn"), false);
+      } else {
+        assert.equal(body.attachments, undefined);
+      }
       return {
         ok: true,
         status: 200,
@@ -188,6 +203,9 @@ assert.match(sentPayloads[0].text, /30-minute Dani Demo Call/i);
 assert.match(sentPayloads[0].text, /https:\/\/calendly\.com\/aifusionlabs/);
 assert.match(sentPayloads[0].text, /will not claim the meeting is scheduled until the booking is confirmed/i);
 assert.match(sentPayloads[0].text, /\n\nBest regards,\nDani/);
+assert.match(sentPayloads[0].html, /<h2[^>]*>Discussion Summary<\/h2>/);
+assert.match(sentPayloads[0].html, /<h2[^>]*>Schedule \/ Confirmation<\/h2>/);
+assert.match(sentPayloads[0].html, /href="https:\/\/calendly\.com\/aifusionlabs"/);
 assert.equal(sentPayloads[0].text.includes("Hi, Thank"), false);
 assert.match(sentPayloads[1].text, /^New Dani Intake\n\nConversation ID: conv_agentmail_live_webhook_001/m);
 assert.match(sentPayloads[1].text, /\n\nContact \/ Context\n/);
@@ -199,6 +217,7 @@ assert.match(sentPayloads[1].text, /visitor requested a meeting\/demo/);
 assert.match(sentPayloads[1].text, /\n\nScheduling \/ Follow-up\n/);
 assert.match(sentPayloads[1].text, /Do not tell the visitor a meeting is scheduled until Calendly or a human confirms the booking/i);
 assert.match(sentPayloads[1].text, /\n\nOperator Action Plan\n/);
+assert.match(sentPayloads[1].html, /<h2[^>]*>Scheduling \/ Follow-up<\/h2>/);
 assert.match(sentPayloads[2].subject, /\[PROSPECT SCORE 10\/10\]/);
 assert.match(sentPayloads[2].text, /^Dani Lead Intelligence Report\n\nProspect Score: 10\/10/m);
 assert.match(sentPayloads[2].text, /Lead temperature: returning warm lead/i);
@@ -207,6 +226,10 @@ assert.match(sentPayloads[2].text, /Scheduling intent: Tuesday at 10 a\.m\./i);
 assert.match(sentPayloads[2].text, /Calendly CTA included: yes/);
 assert.match(sentPayloads[2].text, /\n\nRecommended Next Steps\n/);
 assert.match(sentPayloads[2].text, /Prioritize the requested Tuesday at 10 a\.m\. meeting window/i);
+assert.match(sentPayloads[2].html, /<h2[^>]*>Opportunity Signals<\/h2>/);
+assert.equal(sentPayloads[0].attachments, undefined);
+assert.equal(sentPayloads[1].attachments, undefined);
+assert.equal(sentPayloads[2].attachments.length, 1);
 assertNoOldTranscriptDumpPhrasing(sentPayloads);
 
 const recipients = agentMailCalls.map((call) => JSON.parse(call.init.body).to);
@@ -231,6 +254,7 @@ assert.deepEqual(actionStatus.sent_action_types, [
 assert.equal(actionStatus.agentmail_send_attempted, true);
 assert.equal(actionStatus.agentmail_message_sent, true);
 assert.equal(actionStatus.action_claim_allowed, true);
+assert.equal(result.agentmail_message_sent, true);
 assertNoUnsafeValue(result);
 assertNoUnsafeValue(actionStatus);
 
