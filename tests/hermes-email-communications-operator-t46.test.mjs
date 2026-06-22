@@ -11,19 +11,23 @@ import {
 const transcript = [
   {
     role: "user",
-    content: "Hey Dani, I run Vicks Law Firm and need after-hours weekend intake help.",
+    content: "Hi Dani, this is Rob. I spoke with you before and run Vicks Law Firm.",
+  },
+  {
+    role: "user",
+    content: "Please send the follow-up email with a meeting invitation for Tuesday at 10 a.m.",
+  },
+  {
+    role: "user",
+    content: "The X Agent should help with legal intake, scheduling, and follow-up.",
   },
   {
     role: "agent",
-    content: "Got it. Are you looking for intake, scheduling, or follow-up?",
+    content: "I have notes from our earlier chats and can capture that request for the team.",
   },
   {
     role: "user",
-    content: "The agent should notify me within five minutes and maybe integrate with Clio later.",
-  },
-  {
-    role: "user",
-    content: "My email is rob@example.com and I want a technical call next Tuesday.",
+    content: "My email is rob@example.com and I want that meeting invite sent.",
   },
 ];
 
@@ -49,6 +53,19 @@ function assertNoUnsafeValue(value) {
     "custom_greeting",
   ]) {
     assert.equal(serialized.includes(forbidden), false, `leaked ${forbidden}`);
+  }
+}
+
+function assertNoOldTranscriptDumpPhrasing(value) {
+  const serialized = JSON.stringify(value).toLowerCase();
+  for (const forbidden of [
+    "safe recap prepared",
+    "visitor/business context",
+    "primary safe signals",
+    "memory summary:",
+    "here is the safe recap",
+  ]) {
+    assert.equal(serialized.includes(forbidden), false, `kept old email phrasing: ${forbidden}`);
   }
 }
 
@@ -118,6 +135,19 @@ assert.equal(readHermesEmailActionProvider({ XAGENT_HERMES_EMAIL_ACTIONS_PROVIDE
     "email.admin_summary",
     "email.lead_intel",
   ]);
+  assert.deepEqual(new Set(result.actions.map((action) => action.subject_preview)).size, 3);
+  assert.deepEqual(new Set(result.actions.map((action) => action.body_text_preview)).size, 3);
+  const userFollowup = result.actions.find((action) => action.action_type === "email.user_followup");
+  const adminSummary = result.actions.find((action) => action.action_type === "email.admin_summary");
+  const leadIntel = result.actions.find((action) => action.action_type === "email.lead_intel");
+  assert.match(userFollowup.body_text_preview, /Hi Rob/i);
+  assert.match(userFollowup.body_text_preview, /Vicks Law Firm/);
+  assert.match(userFollowup.body_text_preview, /Tuesday at 10 a\.m\./i);
+  assert.match(userFollowup.body_text_preview, /legal intake/i);
+  assert.match(adminSummary.body_text_preview, /Conversation ID: conv_email_actions_draft_001/);
+  assert.match(adminSummary.body_text_preview, /Recommended operator action/i);
+  assert.match(leadIntel.body_text_preview, /Lead temperature: returning warm lead/i);
+  assert.match(leadIntel.body_text_preview, /Suggested next move/i);
   for (const action of result.actions) {
     assert.equal(action.draft_created, true);
     assert.equal(action.send_attempted, false);
@@ -132,6 +162,7 @@ assert.equal(readHermesEmailActionProvider({ XAGENT_HERMES_EMAIL_ACTIONS_PROVIDE
   assert.equal(result.live_agentmail_called, false);
   assert.equal(result.live_hermes_called, false);
   assert.equal(result.outbound_action_taken, false);
+  assertNoOldTranscriptDumpPhrasing(result);
   assertNoUnsafeValue(result);
 }
 
@@ -183,6 +214,13 @@ assert.equal(readHermesEmailActionProvider({ XAGENT_HERMES_EMAIL_ACTIONS_PROVIDE
   assert.equal(plan.resend_called, false);
   assert.equal(plan.agentmail_called, false);
   assert.equal(plan.outbound_action_taken, false);
+  assert.deepEqual(new Set(plan.actions.map((action) => action.subject_preview)).size, 3);
+  assert.deepEqual(new Set(plan.actions.map((action) => action.body_text_preview)).size, 3);
+  assert.equal(plan.email_insight_metadata.returning_visitor_signal, true);
+  assert.equal(plan.email_insight_metadata.company_detected, true);
+  assert.equal(plan.email_insight_metadata.meeting_time_detected, true);
+  assert.equal(plan.email_insight_metadata.focus_detected, true);
+  assertNoOldTranscriptDumpPhrasing(plan);
   assertNoUnsafeValue(plan);
 }
 

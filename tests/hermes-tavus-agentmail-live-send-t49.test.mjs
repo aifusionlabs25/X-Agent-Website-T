@@ -106,6 +106,19 @@ function assertNoUnsafeValue(value) {
   }
 }
 
+function assertNoOldTranscriptDumpPhrasing(value) {
+  const serialized = JSON.stringify(value).toLowerCase();
+  for (const forbidden of [
+    "safe recap prepared",
+    "visitor/business context",
+    "primary safe signals",
+    "memory summary:",
+    "here is the safe recap",
+  ]) {
+    assert.equal(serialized.includes(forbidden), false, `kept old email phrasing: ${forbidden}`);
+  }
+}
+
 const { fetchImpl, redisStore, agentMailCalls } = createMockFetch();
 await storeConversationEmailMappingForStart(
   {
@@ -125,7 +138,7 @@ const callbackPayload = {
   properties: {
     transcript: [
       { role: "system", content: "internal system turn" },
-      { role: "user", content: "Hey Dani, I run Vicks Law Firm and need legal intake support." },
+      { role: "user", content: "Hey Dani, I'm calling back. I run Vicks Law Firm and need legal intake support." },
       { role: "assistant", content: "We can capture the request for the team." },
       { role: "user", content: "Please send a follow-up email with a meeting invitation for Tuesday at 10 a.m." },
       { role: "user", content: "Focus the demo on intake, scheduling, and follow-up for my law firm." },
@@ -159,6 +172,18 @@ assert.equal(result.live_hermes_called, false);
 assert.equal(result.openai_called, false);
 assert.equal(result.ollama_generate_called, false);
 assert.equal(agentMailCalls.length, 3);
+
+const sentPayloads = agentMailCalls.map((call) => JSON.parse(call.init.body));
+assert.deepEqual(new Set(sentPayloads.map((payload) => payload.subject)).size, 3);
+assert.deepEqual(new Set(sentPayloads.map((payload) => payload.text)).size, 3);
+assert.match(sentPayloads[0].text, /Thanks for checking back in with Dani/i);
+assert.match(sentPayloads[0].text, /Vicks Law Firm/);
+assert.match(sentPayloads[0].text, /Tuesday at 10 a\.m\./i);
+assert.match(sentPayloads[1].text, /Conversation ID: conv_agentmail_live_webhook_001/);
+assert.match(sentPayloads[1].text, /Recommended operator action/i);
+assert.match(sentPayloads[2].text, /Lead temperature: returning warm lead/i);
+assert.match(sentPayloads[2].text, /Suggested next move/i);
+assertNoOldTranscriptDumpPhrasing(sentPayloads);
 
 const recipients = agentMailCalls.map((call) => JSON.parse(call.init.body).to);
 assert.deepEqual(recipients, [
