@@ -60,6 +60,17 @@ const messyMeetingTranscript = [
   },
 ];
 
+const noNameReturningTranscript = [
+  {
+    role: "user",
+    content: "Hi Dani, I'm returning to check whether that follow-up email was sent.",
+  },
+  {
+    role: "user",
+    content: "Can you send the email for next week Tuesday around 10 AM Phoenix time?",
+  },
+];
+
 function assertNoUnsafeValue(value) {
   const serialized = JSON.stringify(value).toLowerCase();
   for (const forbidden of [
@@ -280,6 +291,26 @@ assert.equal(readHermesEmailActionProvider({ XAGENT_HERMES_EMAIL_ACTIONS_PROVIDE
   assert.equal(plan.email_insight_metadata.calendly_timezone, "Phoenix, AZ");
   assert.equal(plan.email_insight_metadata.lead_score, 10);
   assertNoOldTranscriptDumpPhrasing(plan);
+  assertNoUnsafeValue(plan);
+}
+
+{
+  const plan = buildHermesEmailCommunicationPlan(
+    {
+      provider_conversation_id: "conv_email_actions_no_name_returning_001",
+      transcript: noNameReturningTranscript,
+      transcriptMetadata: {},
+      memoryOperatorResult: {},
+    },
+    { env: draftEnv, now: "2026-06-21T12:00:00.000Z", adminRecipientConfigured: true },
+  );
+  const userFollowup = plan.actions.find((action) => action.action_type === "email.user_followup");
+  const adminSummary = plan.actions.find((action) => action.action_type === "email.admin_summary");
+  assert.match(userFollowup.body_text_preview, /^Hi,/);
+  assert.equal(userFollowup.body_text_preview.includes("Hi returning"), false);
+  assert.equal(userFollowup.body_text_preview.includes("name=returning"), false);
+  assert.match(userFollowup.body_text_preview, /Requested meeting time: next week Tuesday around 10 a\.m\. Phoenix time/i);
+  assert.equal(adminSummary.body_text_preview.includes("Visitor name heard: returning"), false);
   assertNoUnsafeValue(plan);
 }
 
