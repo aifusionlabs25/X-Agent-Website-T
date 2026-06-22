@@ -145,10 +145,14 @@ assert.equal(readHermesEmailActionProvider({ XAGENT_HERMES_EMAIL_ACTIONS_PROVIDE
   assert.match(userFollowup.body_text_preview, /\n\nDiscussion Summary\n/);
   assert.match(userFollowup.body_text_preview, /Vicks Law Firm/);
   assert.match(userFollowup.body_text_preview, /Tuesday at 10 a\.m\./i);
+  assert.match(userFollowup.body_text_preview, /Requested meeting time: Tuesday at 10 a\.m\./i);
   assert.match(userFollowup.body_text_preview, /legal intake/i);
-  assert.match(userFollowup.body_text_preview, /\n\nSchedule a Time\n/);
+  assert.match(userFollowup.body_text_preview, /\n\nSchedule \/ Confirmation\n/);
+  assert.match(userFollowup.body_text_preview, /You mentioned this meeting time: Tuesday at 10 a\.m\./i);
+  assert.match(userFollowup.body_text_preview, /closest available 30-minute Dani Demo Call/i);
   assert.match(userFollowup.body_text_preview, /30-minute Dani Demo Call/i);
   assert.match(userFollowup.body_text_preview, /https:\/\/calendly\.com\/aifusionlabs/);
+  assert.match(userFollowup.body_text_preview, /will not claim the meeting is scheduled until the booking is confirmed/i);
   assert.match(userFollowup.body_text_preview, /\n\nBest regards,\nDani/);
   assert.equal(userFollowup.body_text_preview.includes("Hi Rob, Thanks"), false);
   assert.match(adminSummary.body_text_preview, /^New Dani Intake\n\nConversation ID: conv_email_actions_draft_001/m);
@@ -156,14 +160,20 @@ assert.equal(readHermesEmailActionProvider({ XAGENT_HERMES_EMAIL_ACTIONS_PROVIDE
   assert.match(adminSummary.body_text_preview, /\n\nContact \/ Context\n/);
   assert.match(adminSummary.body_text_preview, /\n\nRequest Details\n/);
   assert.match(adminSummary.body_text_preview, /Calendly CTA included: yes/);
+  assert.match(adminSummary.body_text_preview, /Requested meeting time: Tuesday at 10 a\.m\./i);
+  assert.match(adminSummary.body_text_preview, /Visitor-facing CTA references requested time: yes/);
   assert.match(adminSummary.body_text_preview, /visitor requested a meeting\/demo/);
+  assert.match(adminSummary.body_text_preview, /\n\nScheduling \/ Follow-up\n/);
+  assert.match(adminSummary.body_text_preview, /Do not tell the visitor a meeting is scheduled until Calendly or a human confirms the booking/i);
   assert.match(adminSummary.body_text_preview, /\n\nOperator Action Plan\n/);
   assert.match(leadIntel.subject_preview, /\[PROSPECT SCORE 10\/10\]/);
   assert.match(leadIntel.body_text_preview, /^Dani Lead Intelligence Report\n\nProspect Score: 10\/10/m);
   assert.match(leadIntel.body_text_preview, /Lead temperature: returning warm lead/i);
   assert.match(leadIntel.body_text_preview, /\n\nOpportunity Signals\n/);
+  assert.match(leadIntel.body_text_preview, /Scheduling intent: Tuesday at 10 a\.m\./i);
   assert.match(leadIntel.body_text_preview, /Calendly CTA included: yes/);
   assert.match(leadIntel.body_text_preview, /\n\nRecommended Next Steps\n/);
+  assert.match(leadIntel.body_text_preview, /Prioritize the requested Tuesday at 10 a\.m\. meeting window/i);
   for (const action of result.actions) {
     assert.equal(action.draft_created, true);
     assert.equal(action.send_attempted, false);
