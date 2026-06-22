@@ -37,6 +37,7 @@ const draftEnv = {
   XAGENT_HERMES_EMAIL_ACTIONS_KILL_SWITCH: "false",
   XAGENT_HERMES_EMAIL_ACTIONS_MODE: "draft_only",
   XAGENT_HERMES_EMAIL_ACTIONS_PROVIDER: "agentmail",
+  XAGENT_AI_FUSION_CALENDLY_URL: "https://calendly.com/aifusionlabs",
 };
 
 function assertNoUnsafeValue(value) {
@@ -144,9 +145,14 @@ assert.equal(readHermesEmailActionProvider({ XAGENT_HERMES_EMAIL_ACTIONS_PROVIDE
   assert.match(userFollowup.body_text_preview, /Vicks Law Firm/);
   assert.match(userFollowup.body_text_preview, /Tuesday at 10 a\.m\./i);
   assert.match(userFollowup.body_text_preview, /legal intake/i);
+  assert.match(userFollowup.body_text_preview, /30-minute Dani Demo Call/i);
+  assert.match(userFollowup.body_text_preview, /https:\/\/calendly\.com\/aifusionlabs/);
   assert.match(adminSummary.body_text_preview, /Conversation ID: conv_email_actions_draft_001/);
+  assert.match(adminSummary.body_text_preview, /Calendly CTA included: yes/);
+  assert.match(adminSummary.body_text_preview, /visitor requested a meeting\/demo/);
   assert.match(adminSummary.body_text_preview, /Recommended operator action/i);
   assert.match(leadIntel.body_text_preview, /Lead temperature: returning warm lead/i);
+  assert.match(leadIntel.body_text_preview, /Calendly CTA included: yes/);
   assert.match(leadIntel.body_text_preview, /Suggested next move/i);
   for (const action of result.actions) {
     assert.equal(action.draft_created, true);
@@ -220,6 +226,11 @@ assert.equal(readHermesEmailActionProvider({ XAGENT_HERMES_EMAIL_ACTIONS_PROVIDE
   assert.equal(plan.email_insight_metadata.company_detected, true);
   assert.equal(plan.email_insight_metadata.meeting_time_detected, true);
   assert.equal(plan.email_insight_metadata.focus_detected, true);
+  assert.equal(plan.email_insight_metadata.meeting_request_detected, true);
+  assert.equal(plan.email_insight_metadata.calendly_cta_included, true);
+  assert.equal(plan.email_insight_metadata.calendly_meeting_label, "Dani Demo Call");
+  assert.equal(plan.email_insight_metadata.calendly_meeting_length, "30-minute");
+  assert.equal(plan.email_insight_metadata.calendly_timezone, "Phoenix, AZ");
   assertNoOldTranscriptDumpPhrasing(plan);
   assertNoUnsafeValue(plan);
 }

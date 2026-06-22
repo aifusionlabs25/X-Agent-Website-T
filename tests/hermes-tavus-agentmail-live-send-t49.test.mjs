@@ -32,6 +32,7 @@ const envOpen = {
   XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_KILL_SWITCH: "false",
   XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_MODE: "live",
   XAGENT_HERMES_EMAIL_ADMIN_RECIPIENT: "admin@example.com",
+  XAGENT_AI_FUSION_CALENDLY_URL: "https://calendly.com/aifusionlabs",
   XAGENT_EMAIL_IDENTITY_SALT: "unit-test-production-shaped-salt",
   XAGENT_TAVUS_CALLBACK_TOKEN: "unit-test-callback-token",
   UPSTASH_REDIS_REST_URL: "https://unit-test-upstash.invalid",
@@ -179,9 +180,14 @@ assert.deepEqual(new Set(sentPayloads.map((payload) => payload.text)).size, 3);
 assert.match(sentPayloads[0].text, /Thanks for checking back in with Dani/i);
 assert.match(sentPayloads[0].text, /Vicks Law Firm/);
 assert.match(sentPayloads[0].text, /Tuesday at 10 a\.m\./i);
+assert.match(sentPayloads[0].text, /30-minute Dani Demo Call/i);
+assert.match(sentPayloads[0].text, /https:\/\/calendly\.com\/aifusionlabs/);
 assert.match(sentPayloads[1].text, /Conversation ID: conv_agentmail_live_webhook_001/);
+assert.match(sentPayloads[1].text, /Calendly CTA included: yes/);
+assert.match(sentPayloads[1].text, /visitor requested a meeting\/demo/);
 assert.match(sentPayloads[1].text, /Recommended operator action/i);
 assert.match(sentPayloads[2].text, /Lead temperature: returning warm lead/i);
+assert.match(sentPayloads[2].text, /Calendly CTA included: yes/);
 assert.match(sentPayloads[2].text, /Suggested next move/i);
 assertNoOldTranscriptDumpPhrasing(sentPayloads);
 

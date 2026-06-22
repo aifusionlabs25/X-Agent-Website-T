@@ -23,6 +23,8 @@ assert.equal(closed.hermes_email_actions_mode, "draft_only");
 assert.equal(closed.hermes_email_actions_provider, "none");
 assert.equal(closed.hermes_email_actions_send_mode_requested, false);
 assert.equal(closed.hermes_email_actions_live_send_enabled, false);
+assert.equal(closed.hermes_email_calendly_cta_code_present, true);
+assert.equal(closed.hermes_email_calendly_cta_configured, false);
 assert.equal(closed.email_outbound_contact_store_env_gates_open, false);
 assert.equal(closed.agentmail_adapter_code_present, true);
 assert.equal(closed.agentmail_adapter_env_gates_open, false);
@@ -78,6 +80,7 @@ const open = buildXAgentRuntimeReadiness({
     XAGENT_DANI_EMAIL_OUTBOUND_CONTACT_STORE_PILOT_ENABLED: "true",
     XAGENT_EMAIL_OUTBOUND_CONTACT_STORE_KILL_SWITCH: "false",
     XAGENT_HERMES_EMAIL_ADMIN_RECIPIENT: "admin@example.com",
+    XAGENT_AI_FUSION_CALENDLY_URL: "https://calendly.com/aifusionlabs",
   },
   now: "2026-06-19T19:00:00.000Z",
 });
@@ -90,6 +93,8 @@ assert.equal(open.hermes_email_actions_mode, "draft_only");
 assert.equal(open.hermes_email_actions_provider, "agentmail");
 assert.equal(open.hermes_email_actions_send_mode_requested, false);
 assert.equal(open.hermes_email_actions_live_send_enabled, false);
+assert.equal(open.hermes_email_calendly_cta_code_present, true);
+assert.equal(open.hermes_email_calendly_cta_configured, true);
 assert.equal(open.email_outbound_contact_store_env_gates_open, true);
 assert.equal(open.agentmail_adapter_env_gates_open, true);
 assert.equal(open.agentmail_inbox_address_configured, true);
@@ -182,6 +187,7 @@ const forbiddenSubstrings = [
   "XAGENT_HERMES_GATEWAY_URL",
   "AGENTMAIL_API_KEY",
   "am_us_inbox_runtime_test_secret",
+  "calendly.com",
   "Bearer ",
   "Internal continuity context",
   "The visitor inquired",
