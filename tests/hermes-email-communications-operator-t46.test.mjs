@@ -40,6 +40,26 @@ const draftEnv = {
   XAGENT_AI_FUSION_CALENDLY_URL: "https://calendly.com/aifusionlabs",
 };
 
+const eventUrlEnv = {
+  ...draftEnv,
+  XAGENT_AI_FUSION_CALENDLY_EVENT_URL: "https://calendly.com/aifusionlabs/dani-demo-call",
+};
+
+const messyMeetingTranscript = [
+  {
+    role: "user",
+    content: "Hi Dani, this is Rob and I'm calling back about the meeting invite.",
+  },
+  {
+    role: "user",
+    content: "Can you send the email for next week Tuesday around 10 AM Phoenix time?",
+  },
+  {
+    role: "agent",
+    content: "I can capture that request for the team.",
+  },
+];
+
 function assertNoUnsafeValue(value) {
   const serialized = JSON.stringify(value).toLowerCase();
   for (const forbidden of [
@@ -149,14 +169,16 @@ assert.equal(readHermesEmailActionProvider({ XAGENT_HERMES_EMAIL_ACTIONS_PROVIDE
   assert.match(userFollowup.body_text_preview, /legal intake/i);
   assert.match(userFollowup.body_text_preview, /\n\nSchedule \/ Confirmation\n/);
   assert.match(userFollowup.body_text_preview, /You mentioned this meeting time: Tuesday at 10 a\.m\./i);
+  assert.match(userFollowup.body_text_preview, /meeting-specific link/i);
   assert.match(userFollowup.body_text_preview, /closest available 30-minute Dani Demo Call/i);
   assert.match(userFollowup.body_text_preview, /30-minute Dani Demo Call/i);
-  assert.match(userFollowup.body_text_preview, /https:\/\/calendly\.com\/aifusionlabs/);
+  assert.match(userFollowup.body_text_preview, /https:\/\/calendly\.com\/aifusionlabs\?utm_source=xagent/);
+  assert.match(userFollowup.body_text_preview, /a1=Requested\+meeting\+time%3A\+Tuesday\+at\+10\+a\.m\./);
   assert.match(userFollowup.body_text_preview, /will not claim the meeting is scheduled until the booking is confirmed/i);
   assert.match(userFollowup.body_text_preview, /\n\nBest regards,\nDani/);
   assert.match(userFollowup.body_html_preview, /<h2[^>]*>Discussion Summary<\/h2>/);
   assert.match(userFollowup.body_html_preview, /<h2[^>]*>Schedule \/ Confirmation<\/h2>/);
-  assert.match(userFollowup.body_html_preview, /href="https:\/\/calendly\.com\/aifusionlabs"/);
+  assert.match(userFollowup.body_html_preview, /href="https:\/\/calendly\.com\/aifusionlabs\?utm_source=xagent/);
   assert.equal(userFollowup.body_text_preview.includes("Hi Rob, Thanks"), false);
   assert.match(adminSummary.body_text_preview, /^New Dani Intake\n\nConversation ID: conv_email_actions_draft_001/m);
   assert.match(adminSummary.body_text_preview, /Conversation ID: conv_email_actions_draft_001/);
@@ -258,6 +280,44 @@ assert.equal(readHermesEmailActionProvider({ XAGENT_HERMES_EMAIL_ACTIONS_PROVIDE
   assert.equal(plan.email_insight_metadata.calendly_timezone, "Phoenix, AZ");
   assert.equal(plan.email_insight_metadata.lead_score, 10);
   assertNoOldTranscriptDumpPhrasing(plan);
+  assertNoUnsafeValue(plan);
+}
+
+{
+  const plan = buildHermesEmailCommunicationPlan(
+    {
+      provider_conversation_id: "conv_email_actions_messy_time_001",
+      transcript: messyMeetingTranscript,
+      transcriptMetadata: {},
+      memoryOperatorResult: {},
+    },
+    { env: draftEnv, now: "2026-06-21T12:00:00.000Z", adminRecipientConfigured: true },
+  );
+  const userFollowup = plan.actions.find((action) => action.action_type === "email.user_followup");
+  const adminSummary = plan.actions.find((action) => action.action_type === "email.admin_summary");
+  const leadIntel = plan.actions.find((action) => action.action_type === "email.lead_intel");
+  assert.equal(plan.email_insight_metadata.meeting_time_detected, true);
+  assert.match(userFollowup.body_text_preview, /Requested meeting time: next week Tuesday around 10 a\.m\. Phoenix time/i);
+  assert.match(userFollowup.body_text_preview, /Use this meeting-specific link/i);
+  assert.match(userFollowup.body_text_preview, /a1=Requested\+meeting\+time%3A\+next\+week\+Tuesday\+around\+10\+a\.m\.\+Phoenix\+time/i);
+  assert.match(adminSummary.body_text_preview, /Requested meeting time: next week Tuesday around 10 a\.m\. Phoenix time/i);
+  assert.match(leadIntel.body_text_preview, /Scheduling intent: next week Tuesday around 10 a\.m\. Phoenix time/i);
+  assertNoUnsafeValue(plan);
+}
+
+{
+  const plan = buildHermesEmailCommunicationPlan(
+    {
+      provider_conversation_id: "conv_email_actions_event_url_001",
+      transcript,
+      transcriptMetadata: {},
+      memoryOperatorResult: {},
+    },
+    { env: eventUrlEnv, now: "2026-06-21T12:00:00.000Z", adminRecipientConfigured: true },
+  );
+  const userFollowup = plan.actions.find((action) => action.action_type === "email.user_followup");
+  assert.match(userFollowup.body_text_preview, /https:\/\/calendly\.com\/aifusionlabs\/dani-demo-call\?utm_source=xagent/);
+  assert.match(userFollowup.body_html_preview, /href="https:\/\/calendly\.com\/aifusionlabs\/dani-demo-call\?utm_source=xagent/);
   assertNoUnsafeValue(plan);
 }
 
