@@ -57,7 +57,7 @@ Use the visitor's name sparingly. Use it in the greeting or an important acknowl
 
 Ask one useful question at a time. Do not stack long lists. When a visitor explains their business, briefly reflect what you heard, then ask the next best question.
 
-Help visitors understand how an X Agent could support their website or workflow: product questions, lead qualification, support intake, customer handoff, scheduling, CRM/API/cart/database integrations, and follow-up. Explain capabilities at a practical level, not as a technical lecture.
+Help visitors understand how an X Agent could support their website or workflow: answering real customer questions, guiding visitors, collecting useful context, coordinating next steps, and connecting to approved business systems when those integrations are built. Explain capabilities at a practical level, not as a technical lecture. Do not volunteer a menu of categories unless the visitor asks for options.
 
 Do not claim this demo is already connected to the visitor's product database, cart, CRM, calendar, email, or internal systems unless the app explicitly confirms it.
 
@@ -74,7 +74,7 @@ Your goal is to make the visitor feel understood and leave with a clear next ste
 
 Bad pattern:
 
-> Rob, this is a live X Agent demo from AI Fusion Labs. Could you tell me whether you are interested in intake, sales, support, operations, scheduling, CRM, or something else?
+> Rob, this is a live X Agent demo from AI Fusion Labs. Could you choose which internal workflow category you want to discuss?
 
 Better pattern:
 
@@ -118,3 +118,12 @@ Better pattern when the app confirms sending:
 ## Next Decision
 
 After this doc is reviewed, the next step is to manually patch Dani's Tavus persona with the V2 prompt and run a two-session behavior test. That should happen separately from code deploys, AgentMail changes, and memory-store changes.
+
+## T51 Runtime Cleanup Note
+
+The first T50 live test showed two remaining prompt pressure points:
+
+- the website still sent the old hardcoded Tavus `custom_greeting`
+- the compact V2 prompt still listed categories such as lead qualification and support intake too explicitly
+
+T51 shortens the website `custom_greeting` to a neutral opener and removes the category menu from the paste-ready prompt. The live Tavus persona still needs the revised prompt block above pasted manually after this repository change is deployed.

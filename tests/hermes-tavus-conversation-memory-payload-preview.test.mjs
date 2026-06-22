@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import fixture from "./fixtures/hermes-next-session-context-preview-dani.json" with { type: "json" };
+import { DANI_TAVUS_CUSTOM_GREETING } from "../lib/tavusCreateConversationBody.mjs";
 import {
   buildGatedTavusConversationStartMemoryPayloadPreview,
   buildTavusConversationStartMemoryPayloadPreview,
@@ -136,7 +137,8 @@ async function main() {
   ]);
   assert.equal(body.persona_id, "persona_preview_test");
   assert.equal(body.replica_id, "replica_preview_test");
-  assert.equal(body.custom_greeting, "Hey, welcome. I am Dani. Thanks for dropping in. What are you most curious about today.");
+  assert.equal(body.custom_greeting, DANI_TAVUS_CUSTOM_GREETING);
+  assert.equal(body.custom_greeting, "Hi, I am Dani. What would you like to work through today?");
   assert.equal(body.callback_url, "https://preview.invalid/api/webhook");
   assert.deepEqual(body.properties, {
     max_call_duration: 720,

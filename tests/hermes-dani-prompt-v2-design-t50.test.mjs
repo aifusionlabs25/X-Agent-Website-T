@@ -22,6 +22,8 @@ includes("Ask one useful question at a time.");
 includes("Only say an email was sent, a meeting was booked, a calendar invite was created, a CRM record was updated, or another workflow was completed if the application/tool has confirmed that result.");
 includes("Do not place memory in `custom_greeting`.");
 includes("Do not use Tavus `memory_stores` in this lane.");
+includes("Do not volunteer a menu of categories unless the visitor asks for options.");
+includes("T51 shortens the website `custom_greeting` to a neutral opener");
 
 const promptMatch = doc.match(/## Paste-Ready Dani V2 Prompt[\s\S]*?```text\n([\s\S]*?)\n```/);
 assert.ok(promptMatch, "Expected a paste-ready Dani V2 prompt block");
@@ -38,9 +40,12 @@ assert.match(prompt, /Ask one useful question at a time/);
 assert.match(prompt, /If approved prior-session notes are available, use them naturally/);
 assert.match(prompt, /Only say an email was sent, a meeting was booked/);
 assert.match(prompt, /application\/tool has confirmed that result/);
+assert.match(prompt, /Do not volunteer a menu of categories unless the visitor asks for options/);
 
 assert.equal(prompt.includes("You are a live X Agent demo."), false);
 assert.equal(prompt.includes("Confirm the user understands this is a live demo"), false);
+assert.equal(prompt.includes("lead qualification, support intake"), false);
+assert.equal(prompt.includes("sales, support, operations"), false);
 assert.equal(prompt.includes("Redis, Upstash, Tavus payloads, Hermes internals"), true);
 assert.equal(prompt.includes("memory_stores"), false);
 assert.equal(prompt.includes("custom_greeting"), false);
