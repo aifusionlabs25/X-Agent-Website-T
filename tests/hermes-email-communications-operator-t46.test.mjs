@@ -71,6 +71,29 @@ const noNameReturningTranscript = [
   },
 ];
 
+const sparseReturningTranscript = [
+  {
+    role: "user",
+    content: "Hi Dani, this is Rob. I am checking back about that email from our earlier conversation.",
+  },
+  {
+    role: "agent",
+    content: "I can capture that follow-up request for the team.",
+  },
+  {
+    role: "user",
+    content: "Please send it over when you can.",
+  },
+];
+
+const priorMemoryRecordWithMeeting = {
+  memory_record_id: "hxemr_prior_meeting_unit_test",
+  recalled_memory_summary:
+    "Visitor/business context: Rob runs Vicks Law Firm. | Primary goal: explore X Agent support for legal intake. | Next-step signals: requested a meeting invitation for Tuesday at 10 a.m. and wanted the follow-up email confirmed.",
+  raw_email_stored: false,
+  raw_transcript_stored: false,
+};
+
 function assertNoUnsafeValue(value) {
   const serialized = JSON.stringify(value).toLowerCase();
   for (const forbidden of [
@@ -291,6 +314,34 @@ assert.equal(readHermesEmailActionProvider({ XAGENT_HERMES_EMAIL_ACTIONS_PROVIDE
   assert.equal(plan.email_insight_metadata.calendly_timezone, "Phoenix, AZ");
   assert.equal(plan.email_insight_metadata.lead_score, 10);
   assertNoOldTranscriptDumpPhrasing(plan);
+  assertNoUnsafeValue(plan);
+}
+
+{
+  const plan = buildHermesEmailCommunicationPlan(
+    {
+      provider_conversation_id: "conv_email_actions_prior_memory_meeting_001",
+      transcript: sparseReturningTranscript,
+      transcriptMetadata: {},
+      memoryOperatorResult: {},
+      priorMemoryRecord: priorMemoryRecordWithMeeting,
+    },
+    { env: draftEnv, now: "2026-06-21T12:00:00.000Z", adminRecipientConfigured: true },
+  );
+  const userFollowup = plan.actions.find((action) => action.action_type === "email.user_followup");
+  const adminSummary = plan.actions.find((action) => action.action_type === "email.admin_summary");
+  const leadIntel = plan.actions.find((action) => action.action_type === "email.lead_intel");
+  assert.equal(plan.email_insight_metadata.prior_memory_used_for_email_context, true);
+  assert.equal(plan.email_insight_metadata.meeting_time_detected, true);
+  assert.equal(plan.email_insight_metadata.meeting_time_source, "prior_memory");
+  assert.match(userFollowup.body_text_preview, /^Hi Rob,/);
+  assert.match(userFollowup.body_text_preview, /Vicks Law Firm/);
+  assert.match(userFollowup.body_text_preview, /Requested meeting time: Tuesday at 10 a\.m\. \(from prior conversation notes\)/i);
+  assert.match(userFollowup.body_text_preview, /Prior conversation notes mention this meeting time: Tuesday at 10 a\.m\./i);
+  assert.match(userFollowup.body_text_preview, /a1=Requested\+meeting\+time%3A\+Tuesday\+at\+10\+a\.m\./);
+  assert.match(adminSummary.body_text_preview, /Prior memory context consulted for missing email details: yes/);
+  assert.match(adminSummary.body_text_preview, /Requested meeting time: Tuesday at 10 a\.m\. \(from prior conversation notes\)/i);
+  assert.match(leadIntel.body_text_preview, /Scheduling intent: Tuesday at 10 a\.m\. \(from prior conversation notes\)/i);
   assertNoUnsafeValue(plan);
 }
 

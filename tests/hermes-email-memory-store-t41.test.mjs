@@ -3,6 +3,7 @@ import {
   areEmailOutboundContactStoreGatesOpen,
   buildEmailMemoryRecordFromTranscript,
   readConversationOutboundContactEmail,
+  readStoredEmailMemoryRecordForConversation,
   readStoredEmailMemoryContext,
   storeConversationEmailMappingForStart,
   storeEmailMemoryFromConversationTranscript,
@@ -201,6 +202,24 @@ assert.equal(storedContext.lookup_source, "upstash_email_identity_memory_store")
 assert.match(storedContext.memory_context.recalled_memory_summary, /soccer products/i);
 assert.equal(storedContext.memory_context.next_session_id, "xagent_session_store_test_002");
 assertNoRawSensitiveValue(storedContext);
+
+await storeConversationEmailMappingForStart(
+  {
+    requestBody: { email: "rob@example.com", display_name: "Rob" },
+    session_id: "xagent_session_store_test_004",
+    provider_conversation_id: "conv_store_test_004",
+    started_at: 1760000000000,
+  },
+  { env: envOpen, fetchImpl },
+);
+const priorMemoryForNewConversation = await readStoredEmailMemoryRecordForConversation(
+  "conv_store_test_004",
+  { env: envOpen, fetchImpl },
+);
+assert.equal(priorMemoryForNewConversation.memory_record_id, storeResult.memory_record_id);
+assert.match(priorMemoryForNewConversation.recalled_memory_summary, /Tuesday at 10 a\.m\. or 2 p\.m\./i);
+assert.match(priorMemoryForNewConversation.recalled_memory_summary, /soccer products/i);
+assertNoRawSensitiveValue(priorMemoryForNewConversation);
 
 const resolvedForStart = await maybeResolveServerSideMemoryContextForStart(
   { email: "rob@example.com" },

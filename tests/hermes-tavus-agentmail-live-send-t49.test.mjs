@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
-import { storeConversationEmailMappingForStart } from "../lib/xagent/emailMemoryStore.mjs";
+import {
+  storeConversationEmailMappingForStart,
+  storeEmailMemoryFromConversationTranscript,
+} from "../lib/xagent/emailMemoryStore.mjs";
 import { buildHermesEmailActionStatusLookup } from "../lib/xagent/hermesEmailActionStatusStore.mjs";
 import { handleTavusTranscriptionMemoryWebhook } from "../lib/xagent/tavusTranscriptionMemoryWebhook.mjs";
 
@@ -83,7 +86,7 @@ function createMockFetch() {
         const decoded = Buffer.from(body.attachments[0].content, "base64").toString("utf8");
         assert.match(decoded, /^Dani X Agent Transcript/);
         assert.match(decoded, /Conversation ID: conv_agentmail_live_webhook_001/);
-        assert.match(decoded, /Please send a follow-up email with a meeting invitation for Tuesday at 10 a\.m\./);
+        assert.match(decoded, /I need the email sent from our prior conversation/);
         assert.equal(decoded.includes("internal system turn"), false);
       } else {
         assert.equal(body.attachments, undefined);
@@ -139,6 +142,30 @@ const { fetchImpl, redisStore, agentMailCalls } = createMockFetch();
 await storeConversationEmailMappingForStart(
   {
     requestBody: { email: "Visitor@Example.com" },
+    session_id: "xagent_session_agentmail_prior_webhook_001",
+    provider_conversation_id: "conv_agentmail_prior_webhook_001",
+    started_at: 1759999900000,
+  },
+  { env: envOpen, fetchImpl },
+);
+await storeEmailMemoryFromConversationTranscript(
+  {
+    provider_conversation_id: "conv_agentmail_prior_webhook_001",
+    transcript: [
+      { role: "user", content: "Hi Dani, this is Rob. I run Vicks Law Firm and need legal intake support." },
+      { role: "user", content: "Please send a follow-up email with a meeting invitation for Tuesday at 10 a.m." },
+      { role: "agent", content: "I can capture that requested meeting time for the team." },
+    ],
+    transcriptMetadata: {
+      source_turn_count: 3,
+      retained_memory_turn_count: 3,
+    },
+  },
+  { env: envOpen, fetchImpl },
+);
+await storeConversationEmailMappingForStart(
+  {
+    requestBody: { email: "Visitor@Example.com" },
     session_id: "xagent_session_agentmail_live_webhook_001",
     provider_conversation_id: "conv_agentmail_live_webhook_001",
     started_at: 1760000000000,
@@ -154,9 +181,8 @@ const callbackPayload = {
   properties: {
     transcript: [
       { role: "system", content: "internal system turn" },
-      { role: "user", content: "Hey Dani, I'm calling back. I run Vicks Law Firm and need legal intake support." },
+      { role: "user", content: "Hey Dani, this is Rob. I'm calling back. I need the email sent from our prior conversation." },
       { role: "assistant", content: "We can capture the request for the team." },
-      { role: "user", content: "Please send a follow-up email with a meeting invitation for Tuesday at 10 a.m." },
       { role: "user", content: "Focus the demo on intake, scheduling, and follow-up for my law firm." },
     ],
   },
@@ -195,9 +221,9 @@ assert.deepEqual(new Set(sentPayloads.map((payload) => payload.text)).size, 3);
 assert.match(sentPayloads[0].text, /\n\nDiscussion Summary\n/);
 assert.match(sentPayloads[0].text, /Vicks Law Firm/);
 assert.match(sentPayloads[0].text, /Tuesday at 10 a\.m\./i);
-assert.match(sentPayloads[0].text, /Requested meeting time: Tuesday at 10 a\.m\./i);
+assert.match(sentPayloads[0].text, /Requested meeting time: Tuesday at 10 a\.m\. \(from prior conversation notes\)/i);
 assert.match(sentPayloads[0].text, /\n\nSchedule \/ Confirmation\n/);
-assert.match(sentPayloads[0].text, /You mentioned this meeting time: Tuesday at 10 a\.m\./i);
+assert.match(sentPayloads[0].text, /Prior conversation notes mention this meeting time: Tuesday at 10 a\.m\./i);
 assert.match(sentPayloads[0].text, /meeting-specific link/i);
 assert.match(sentPayloads[0].text, /closest available 30-minute Dani Demo Call/i);
 assert.match(sentPayloads[0].text, /30-minute Dani Demo Call/i);
@@ -215,7 +241,8 @@ assert.match(sentPayloads[1].text, /^New Dani Intake\n\nConversation ID: conv_ag
 assert.match(sentPayloads[1].text, /\n\nContact \/ Context\n/);
 assert.match(sentPayloads[1].text, /\n\nRequest Details\n/);
 assert.match(sentPayloads[1].text, /Calendly CTA included: yes/);
-assert.match(sentPayloads[1].text, /Requested meeting time: Tuesday at 10 a\.m\./i);
+assert.match(sentPayloads[1].text, /Prior memory context consulted for missing email details: yes/);
+assert.match(sentPayloads[1].text, /Requested meeting time: Tuesday at 10 a\.m\. \(from prior conversation notes\)/i);
 assert.match(sentPayloads[1].text, /Visitor-facing CTA references requested time: yes/);
 assert.match(sentPayloads[1].text, /visitor requested a meeting\/demo/);
 assert.match(sentPayloads[1].text, /\n\nScheduling \/ Follow-up\n/);
@@ -227,7 +254,7 @@ assert.match(sentPayloads[2].text, /^Dani Lead Intelligence Report\n\nProspect S
 assert.match(sentPayloads[2].text, /Lead temperature: returning warm lead/i);
 assert.equal(sentPayloads[2].text.includes("Visitor name heard: calling"), false);
 assert.match(sentPayloads[2].text, /\n\nOpportunity Signals\n/);
-assert.match(sentPayloads[2].text, /Scheduling intent: Tuesday at 10 a\.m\./i);
+assert.match(sentPayloads[2].text, /Scheduling intent: Tuesday at 10 a\.m\. \(from prior conversation notes\)/i);
 assert.match(sentPayloads[2].text, /Calendly CTA included: yes/);
 assert.match(sentPayloads[2].text, /\n\nRecommended Next Steps\n/);
 assert.match(sentPayloads[2].text, /Prioritize the requested Tuesday at 10 a\.m\. meeting window/i);
