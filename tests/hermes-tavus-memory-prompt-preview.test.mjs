@@ -131,6 +131,13 @@ async function main() {
   assert.match(prompt, /If the visitor becomes frustrated about email sending, apologize once/);
   assert.match(prompt, /avoid repeating caveats/);
   assert.match(prompt, /When future app tools confirm an outbound action, Dani may state that confirmed result truthfully/);
+  assert.match(prompt, /When explaining future workflow capabilities such as on-call alerts, SMS, email, CRM, database, cart, or calendar actions/);
+  assert.match(prompt, /use conditional language/);
+  assert.match(prompt, /can be configured/);
+  assert.match(prompt, /once connected/);
+  assert.match(prompt, /with the right integration/);
+  assert.match(prompt, /Do not say the agent will automatically notify, text, email, schedule, add to calendar, update CRM, or perform a business-system action unless the current app has confirmed that integration is enabled/);
+  assert.match(prompt, /For workflow-design questions, give the practical pattern first, then ask one focused implementation question/);
   assertPromptExcludesBackendData(prompt);
   assert.equal(prompt.includes("person@example.com"), false);
   assert.equal(prompt.includes("4111"), false);

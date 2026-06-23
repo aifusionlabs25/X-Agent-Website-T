@@ -150,3 +150,14 @@ T54 tightens the injected Tavus `conversational_context` for returning-user sess
 - Dani should explain that the website handoff can route the follow-up after the session ends
 - Dani should not say she lacks a confirmed email when returning-user memory context is present; the raw email is hidden from Dani, but the website check-in identity can be used by the backend handoff
 - if the visitor is frustrated, Dani should apologize once, avoid repeating caveats, and give the clearest truthful status
+
+## T55 Workflow Capability Language Note
+
+The next live transcript showed a materially better memory result. Dani remembered the law-firm and after-hours call-handling context and did not repeat the live-demo speech. The remaining issue was integration phrasing: when the visitor asked how an X Agent would contact the on-call lawyer, Dani described email, SMS, and calendar actions in language that sounded too automatic.
+
+T55 tightens the injected Tavus `conversational_context` for workflow-design explanations:
+
+- describe on-call alerts, SMS, email, CRM, database, cart, and calendar actions as configurable future integrations
+- use conditional language such as "can be configured," "once connected," or "with the right integration"
+- do not say the agent will automatically notify, text, email, schedule, add to calendar, update CRM, or perform a business-system action unless the current app has confirmed that integration is enabled
+- give the practical workflow pattern first, then ask one focused implementation question about the visitor's preferred system or handoff channel

@@ -30,6 +30,12 @@ includes("the website handoff can route the follow-up after the session ends");
 includes("Dani should not say she lacks a confirmed email when returning-user memory context is present");
 includes("the raw email is hidden from Dani, but the website check-in identity can be used by the backend handoff");
 includes("apologize once, avoid repeating caveats");
+includes("T55 Workflow Capability Language Note");
+includes("Dani remembered the law-firm and after-hours call-handling context");
+includes("describe on-call alerts, SMS, email, CRM, database, cart, and calendar actions as configurable future integrations");
+includes("use conditional language such as \"can be configured,\" \"once connected,\" or \"with the right integration\"");
+includes("do not say the agent will automatically notify, text, email, schedule, add to calendar, update CRM, or perform a business-system action unless the current app has confirmed that integration is enabled");
+includes("ask one focused implementation question about the visitor's preferred system or handoff channel");
 
 const promptMatch = doc.match(/## Paste-Ready Dani V2 Prompt[\s\S]*?```text\n([\s\S]*?)\n```/);
 assert.ok(promptMatch, "Expected a paste-ready Dani V2 prompt block");
