@@ -1,8 +1,11 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import DailyIframe, { DailyCall } from '@daily-co/daily-js';
 import { Mail, ShieldCheck, Square, User } from 'lucide-react';
+import DaniLiveNotesPanel from '@/components/dani/DaniLiveNotesPanel';
+import DaniPostSessionResults from '@/components/dani/DaniPostSessionResults';
+import { pickSafeConversationStartExperienceFlags } from '@/lib/xagent/daniSessionExperience.mjs';
 
 interface Props {
     onClose: () => void;
@@ -13,6 +16,26 @@ type ConversationStartPayload = {
     display_name?: string;
     skip_memory?: true;
     memory_mode?: 'fresh';
+};
+
+type ConversationStartFlags = {
+    memoryRequested?: boolean;
+    memoryApplied?: boolean;
+    contextAttached?: boolean;
+};
+
+type EmailActionStatus = {
+    email_action_status_available?: boolean;
+    email_action_plan_created?: boolean;
+    email_action_plan_status?: string;
+    action_count?: number;
+    draft_count?: number;
+    send_count?: number;
+    action_types?: string[];
+    sent_action_types?: string[];
+    memory_record_stored?: boolean;
+    action_claim_allowed?: boolean;
+    agentmail_message_sent?: boolean;
 };
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -30,6 +53,11 @@ export default function TavusPlayer({ onClose }: Props) {
     const [visitorName, setVisitorName] = useState('');
     const [visitorEmail, setVisitorEmail] = useState('');
     const [formError, setFormError] = useState<string | null>(null);
+    const [conversationStartFlags, setConversationStartFlags] = useState<ConversationStartFlags | null>(null);
+    const [showResults, setShowResults] = useState(false);
+    const [emailActionStatus, setEmailActionStatus] = useState<EmailActionStatus | null>(null);
+    const [endedAtLabel, setEndedAtLabel] = useState<string>('Just now');
+    const sessionEndedRef = useRef(false);
     const sessionIdentityRef = useRef<{
         tenant_id: string;
         agent_slug: string;
@@ -40,8 +68,67 @@ export default function TavusPlayer({ onClose }: Props) {
         startedAt: number;
     } | null>(null);
 
+    const lookupEmailActionStatus = useCallback(async (providerConversationId: string) => {
+        try {
+            const response = await fetch('/api/xagent/email-actions/status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ provider_conversation_id: providerConversationId }),
+            });
+            const json = await response.json();
+            if (response.ok && json?.safe_status_only) {
+                setEmailActionStatus(json);
+                return;
+            }
+        } catch {
+            // Keep the post-session UI safe and pending if status lookup is unavailable.
+        }
+
+        setEmailActionStatus({
+            email_action_status_available: false,
+            email_action_plan_created: false,
+            send_count: 0,
+            memory_record_stored: false,
+            action_claim_allowed: false,
+        });
+    }, []);
+
+    const finishSession = useCallback(() => {
+        if (sessionEndedRef.current) return;
+        sessionEndedRef.current = true;
+
+        const providerConversationId = sessionIdentityRef.current?.provider_conversation_id;
+        const label = new Intl.DateTimeFormat(undefined, {
+            hour: 'numeric',
+            minute: '2-digit',
+            month: 'short',
+            day: 'numeric',
+        }).format(new Date());
+
+        setEndedAtLabel(label);
+        setLoading(false);
+        setShowResults(true);
+
+        const frame = callFrameRef.current;
+        callFrameRef.current = null;
+        if (frame) {
+            try {
+                frame.destroy();
+            } catch {
+                // Daily cleanup should never block the safe post-session screen.
+            }
+        }
+
+        if (providerConversationId) {
+            void lookupEmailActionStatus(providerConversationId);
+        }
+    }, [lookupEmailActionStatus]);
+
     const startFresh = () => {
         setFormError(null);
+        setConversationStartFlags(null);
+        setEmailActionStatus(null);
+        sessionEndedRef.current = false;
         setLoading(true);
         setStartPayload({ skip_memory: true, memory_mode: 'fresh' });
     };
@@ -56,6 +143,9 @@ export default function TavusPlayer({ onClose }: Props) {
         }
 
         setFormError(null);
+        setConversationStartFlags(null);
+        setEmailActionStatus(null);
+        sessionEndedRef.current = false;
         setLoading(true);
         setStartPayload({
             email,
@@ -95,6 +185,7 @@ export default function TavusPlayer({ onClose }: Props) {
                 if (!container || !url) return;
 
                 setConversationUrl(url);
+                setConversationStartFlags(pickSafeConversationStartExperienceFlags(json));
                 sessionIdentityRef.current = {
                     tenant_id: json.tenant_id,
                     agent_slug: json.agent_slug,
@@ -133,7 +224,7 @@ export default function TavusPlayer({ onClose }: Props) {
                 });
 
                 callFrame.on('left-meeting', () => {
-                    onClose();
+                    if (isMounted) finishSession();
                 });
 
                 // 4) Reveal the Daily/Tavus iframe before join so browser permission
@@ -161,7 +252,7 @@ export default function TavusPlayer({ onClose }: Props) {
                 callFrameRef.current = null;
             }
         };
-    }, [onClose, startPayload]);
+    }, [finishSession, startPayload]);
 
     return (
         <div className="absolute inset-0 w-full h-full bg-black z-[100] flex flex-col items-center justify-center">
@@ -282,20 +373,39 @@ export default function TavusPlayer({ onClose }: Props) {
                 </div>
             )}
 
+            {startPayload !== null && !error && !showResults && (
+                <DaniLiveNotesPanel
+                    displayName={visitorName}
+                    memoryCheckInSupplied={Boolean(startPayload.email)}
+                    freshSession={Boolean(startPayload.skip_memory)}
+                    conversationStart={conversationStartFlags ?? undefined}
+                    visible={!loading || Boolean(conversationStartFlags)}
+                />
+            )}
+
             {/* Daily Video Container (rendered once mounted) */}
             <div ref={videoContainerRef} className="w-full h-full" />
 
             {/* End Session Overlay Button (sits above the Daily feed) */}
-            {!loading && !error && (
+            {!loading && !error && !showResults && (
                 <div className="absolute bottom-8 left-8 md:bottom-16 md:left-16 z-[105]">
                     <button
-                        onClick={onClose}
+                        onClick={finishSession}
                         className="flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white font-bold px-7 py-3 rounded-md text-sm transition-colors shadow-lg shadow-red-900/50"
                     >
                         <Square size={16} className="fill-white" />
                         End Session
                     </button>
                 </div>
+            )}
+
+            {showResults && (
+                <DaniPostSessionResults
+                    emailActionStatus={emailActionStatus}
+                    memoryContextApplied={Boolean(conversationStartFlags?.memoryApplied)}
+                    endedAtLabel={endedAtLabel}
+                    onClose={onClose}
+                />
             )}
         </div>
     );
