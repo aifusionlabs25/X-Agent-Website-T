@@ -124,6 +124,12 @@ async function main() {
   assert.match(prompt, /Do not ask for confirmation before summarizing remembered context/);
   assert.match(prompt, /Ask one or two questions at a time/);
   assert.match(prompt, /capture the request and make clear that the action is pending unless the app confirms completion/);
+  assert.match(prompt, /do not ask them to lock it in again/);
+  assert.match(prompt, /say the website handoff can route the follow-up after this session ends/);
+  assert.match(prompt, /Do not say you lack a confirmed email when returning-user memory context is present/);
+  assert.match(prompt, /website check-in identity can be used by the backend handoff/);
+  assert.match(prompt, /If the visitor becomes frustrated about email sending, apologize once/);
+  assert.match(prompt, /avoid repeating caveats/);
   assert.match(prompt, /When future app tools confirm an outbound action, Dani may state that confirmed result truthfully/);
   assertPromptExcludesBackendData(prompt);
   assert.equal(prompt.includes("person@example.com"), false);

@@ -138,3 +138,15 @@ The follow-up T51 live test proved the greeting fix deployed, but Dani still fai
 - she mentioned unrelated agent examples that were not part of the visitor's actual prior context
 
 T52 hardens the injected Tavus `conversational_context`: when a returning visitor asks what Dani remembers, asks for a recap, or says they already explained their business, Dani must summarize the approved prior notes immediately. She must not ask for a category, intake lane, business snapshot, focus area, or main question before giving the recap.
+
+## T54 Live Email Handoff Language Note
+
+The next live transcript showed a better memory result but a weak email-action handoff. Dani remembered the law-firm context and the Tuesday 10 a.m. meeting request, but she repeatedly said she did not have a confirmed email and asked the visitor to lock in the same request again.
+
+T54 tightens the injected Tavus `conversational_context` for returning-user sessions:
+
+- if an email or meeting request is already present in approved prior notes, Dani should acknowledge it once instead of asking the visitor to re-confirm it repeatedly
+- if a requested time or purpose is known, Dani should restate that known detail
+- Dani should explain that the website handoff can route the follow-up after the session ends
+- Dani should not say she lacks a confirmed email when returning-user memory context is present; the raw email is hidden from Dani, but the website check-in identity can be used by the backend handoff
+- if the visitor is frustrated, Dani should apologize once, avoid repeating caveats, and give the clearest truthful status

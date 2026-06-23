@@ -24,6 +24,12 @@ includes("Do not place memory in `custom_greeting`.");
 includes("Do not use Tavus `memory_stores` in this lane.");
 includes("Do not volunteer a menu of categories unless the visitor asks for options.");
 includes("T51 shortens the website `custom_greeting` to a neutral opener");
+includes("T54 Live Email Handoff Language Note");
+includes("Dani should acknowledge it once instead of asking the visitor to re-confirm it repeatedly");
+includes("the website handoff can route the follow-up after the session ends");
+includes("Dani should not say she lacks a confirmed email when returning-user memory context is present");
+includes("the raw email is hidden from Dani, but the website check-in identity can be used by the backend handoff");
+includes("apologize once, avoid repeating caveats");
 
 const promptMatch = doc.match(/## Paste-Ready Dani V2 Prompt[\s\S]*?```text\n([\s\S]*?)\n```/);
 assert.ok(promptMatch, "Expected a paste-ready Dani V2 prompt block");
