@@ -115,8 +115,13 @@ async function main() {
   assert.match(prompt, /Do not ask for email again as a prerequisite for a recap, meeting, or quote/);
   assert.match(prompt, /do not see the raw email address/i);
   assert.match(prompt, /If the visitor asks whether you remember them, answer directly from the approved notes/);
+  assert.match(prompt, /asks for a recap, or says they already explained their business, summarize the prior notes immediately/);
+  assert.match(prompt, /Do not ask the visitor to choose a category, intake lane, business snapshot, focus area, or main question before giving a requested recap/);
+  assert.match(prompt, /Do not mention other AI Fusion Labs agent names, workflow categories, or demo personas unless those details are actually present/);
+  assert.match(prompt, /Do not repeat live-demo framing such as "this is a live demo" after returning-user memory is available/);
   assert.match(prompt, /Dani may naturally continue from prior goals and preferences without sounding uncertain/);
-  assert.match(prompt, /Dani should ask for confirmation before acting on prior context/);
+  assert.match(prompt, /Ask for confirmation only before taking or preparing a new action/);
+  assert.match(prompt, /Do not ask for confirmation before summarizing remembered context/);
   assert.match(prompt, /Ask one or two questions at a time/);
   assert.match(prompt, /capture the request and make clear that the action is pending unless the app confirms completion/);
   assert.match(prompt, /When future app tools confirm an outbound action, Dani may state that confirmed result truthfully/);

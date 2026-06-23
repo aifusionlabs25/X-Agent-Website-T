@@ -127,3 +127,14 @@ The first T50 live test showed two remaining prompt pressure points:
 - the compact V2 prompt still listed categories such as lead qualification and support intake too explicitly
 
 T51 shortens the website `custom_greeting` to a neutral opener and removes the category menu from the paste-ready prompt. The live Tavus persona still needs the revised prompt block above pasted manually after this repository change is deployed.
+
+## T52 Runtime Recap Guard Note
+
+The follow-up T51 live test proved the greeting fix deployed, but Dani still failed the returning-user recap task:
+
+- she repeated the live-demo framing
+- she asked the visitor to choose an intake/category lane before answering
+- she claimed to have prior notes but kept asking for a business snapshot
+- she mentioned unrelated agent examples that were not part of the visitor's actual prior context
+
+T52 hardens the injected Tavus `conversational_context`: when a returning visitor asks what Dani remembers, asks for a recap, or says they already explained their business, Dani must summarize the approved prior notes immediately. She must not ask for a category, intake lane, business snapshot, focus area, or main question before giving the recap.

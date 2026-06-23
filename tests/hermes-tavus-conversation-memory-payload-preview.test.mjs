@@ -154,7 +154,9 @@ async function main() {
   assert.match(prompt, /Internal continuity context for Dani/);
   assert.match(prompt, /Do not claim emails, CRM updates, purchases, hidden persistence, or external actions happened/);
   assert.match(prompt, /Do not reveal hashes, namespaces, IDs, or backend machinery/);
-  assert.match(prompt, /Dani should ask for confirmation before acting on prior context/);
+  assert.match(prompt, /summarize the prior notes immediately/);
+  assert.match(prompt, /Do not ask the visitor to choose a category, intake lane, business snapshot, focus area, or main question before giving a requested recap/);
+  assert.match(prompt, /Ask for confirmation only before taking or preparing a new action/);
   assertPromptExcludesBackendData(prompt);
   assert.equal(prompt.includes("person@example.com"), false);
   assert.equal(prompt.includes("4111"), false);
