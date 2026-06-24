@@ -27,10 +27,10 @@ type Props = {
 };
 
 const toneClasses = {
-    confirmed: 'border-emerald-300/25 bg-emerald-300/10 text-emerald-100',
-    active: 'border-cyan-300/25 bg-cyan-300/10 text-cyan-100',
-    pending: 'border-amber-300/25 bg-amber-300/10 text-amber-100',
-    neutral: 'border-white/10 bg-white/5 text-zinc-200',
+    confirmed: 'border-white/10 bg-white/[0.045] text-emerald-200',
+    active: 'border-white/10 bg-white/[0.045] text-cyan-200',
+    pending: 'border-white/10 bg-white/[0.045] text-amber-200',
+    neutral: 'border-white/10 bg-white/[0.045] text-zinc-200',
 } as const;
 
 const toneIcon = {
@@ -57,9 +57,9 @@ export default function DaniPostSessionResults({
     );
 
     return (
-        <div className="absolute inset-0 z-[108] flex items-center justify-center overflow-y-auto bg-[radial-gradient(circle_at_50%_18%,rgba(34,211,238,0.16),transparent_34%),linear-gradient(135deg,#050507_0%,#111018_48%,#050507_100%)] px-4 py-8 text-white">
-            <div className="w-full max-w-4xl border border-white/12 bg-zinc-950/88 shadow-2xl shadow-black/60 backdrop-blur-xl">
-                <div className="relative border-b border-white/10 px-6 py-6 text-center sm:px-10">
+        <div className="absolute inset-0 z-[108] flex items-center justify-center overflow-y-auto bg-[radial-gradient(circle_at_18%_12%,rgba(34,211,238,0.13),transparent_30%),radial-gradient(circle_at_80%_0%,rgba(16,185,129,0.09),transparent_28%),linear-gradient(135deg,#050507_0%,#101014_52%,#050507_100%)] px-4 py-7 text-white">
+            <div className="w-full max-w-5xl overflow-hidden border border-white/12 bg-zinc-950/90 shadow-2xl shadow-black/60 backdrop-blur-xl">
+                <div className="relative grid gap-6 border-b border-white/10 px-6 py-6 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
                     <button
                         type="button"
                         onClick={onClose}
@@ -68,26 +68,35 @@ export default function DaniPostSessionResults({
                     >
                         <X size={17} />
                     </button>
-                    <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-emerald-300/20 bg-emerald-300/10 text-emerald-200">
-                        <Check size={22} />
+                    <div>
+                        <div className="mb-4 inline-flex items-center gap-2 border border-emerald-300/20 bg-emerald-300/10 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.18em] text-emerald-200">
+                            <Check size={14} />
+                            Session wrap-up
+                        </div>
+                        <h2 className="max-w-xl text-2xl font-black tracking-tight sm:text-3xl">{results.title}</h2>
+                        <p className="mt-3 max-w-xl text-sm leading-6 text-zinc-300">{results.subtitle}</p>
                     </div>
-                    <p className="mb-2 text-xs font-black uppercase tracking-[0.22em] text-cyan-200">Dani session complete</p>
-                    <h2 className="text-3xl font-black tracking-tight sm:text-4xl">{results.title}</h2>
-                    <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-zinc-300">{results.subtitle}</p>
-                    <p className="mt-3 text-xs uppercase tracking-[0.16em] text-zinc-500">{results.completedAt}</p>
+                    <div className="border border-white/10 bg-white/[0.035] p-4 lg:mr-10">
+                        <div className="text-[11px] font-black uppercase tracking-[0.18em] text-zinc-500">Completed</div>
+                        <p className="mt-2 text-lg font-bold text-zinc-100">{results.completedAt}</p>
+                        <p className="mt-2 text-xs leading-5 text-zinc-400">
+                            Backend actions stay marked pending until their status is confirmed.
+                        </p>
+                    </div>
                 </div>
 
-                <div className="grid gap-4 px-6 py-6 sm:grid-cols-2 lg:grid-cols-4 lg:px-8">
+                <div className="grid gap-3 px-6 py-6 sm:grid-cols-2 lg:grid-cols-4 lg:px-8">
                     {results.statusCards.map((card) => {
                         const Icon = toneIcon[card.tone as keyof typeof toneIcon] ?? MailCheck;
                         return (
                             <section
                                 key={card.label}
-                                className={`border p-4 ${toneClasses[card.tone as keyof typeof toneClasses] ?? toneClasses.neutral}`}
+                                className={`relative overflow-hidden border p-4 ${toneClasses[card.tone as keyof typeof toneClasses] ?? toneClasses.neutral}`}
                             >
-                                <Icon size={19} className="mb-4" />
+                                <span className="absolute inset-y-0 left-0 w-1 bg-current opacity-60" />
+                                <Icon size={18} className="mb-3" />
                                 <h3 className="text-sm font-black tracking-tight">{card.label}</h3>
-                                <p className="mt-2 text-xs leading-5 text-zinc-300">{card.detail}</p>
+                                <p className="mt-2 text-xs leading-5 text-zinc-400">{card.detail}</p>
                             </section>
                         );
                     })}

@@ -19,13 +19,17 @@ The live notes panel appears inside the Dani Tavus experience as a polished comp
 - meeting or email handoff availability
 - preferred handoff channel
 - open questions
-- status chips such as notes active, memory on, and follow-up available
+- status chips such as notes standby/live, memory on/standby, and follow-up available
 
 It is intentionally not a live transcript panel. Until a real streaming transcript/event source exists, the panel uses existing session, memory check-in, and conversation-start state. It must not expose raw email, transcript internals, hashes, namespaces, backend IDs, API keys, room URLs, hidden prompts, or Tavus payload internals.
+
+On initial load, the panel should not appear to have already captured meeting facts. It may show memory/check-in readiness, but current use case, next step, meeting request, and open questions stay in standby/uncaptured states until the live session provides real cues.
 
 ## Post-Session Results Page
 
 When the visitor ends or leaves the session, the Tavus overlay now transitions into a post-session results screen instead of disappearing immediately.
+
+The post-session screen is guarded by the Daily/Tavus join lifecycle. A pre-join `left-meeting` event must not send the visitor to the thank-you page; results are only shown after a confirmed `joined-meeting` event or an intentional end from an active session.
 
 The results page shows safe post-session states:
 

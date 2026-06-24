@@ -57,7 +57,9 @@ export default function TavusPlayer({ onClose }: Props) {
     const [showResults, setShowResults] = useState(false);
     const [emailActionStatus, setEmailActionStatus] = useState<EmailActionStatus | null>(null);
     const [endedAtLabel, setEndedAtLabel] = useState<string>('Just now');
+    const [sessionConnected, setSessionConnected] = useState(false);
     const sessionEndedRef = useRef(false);
+    const hasJoinedMeetingRef = useRef(false);
     const sessionIdentityRef = useRef<{
         tenant_id: string;
         agent_slug: string;
@@ -107,6 +109,7 @@ export default function TavusPlayer({ onClose }: Props) {
 
         setEndedAtLabel(label);
         setLoading(false);
+        setSessionConnected(false);
         setShowResults(true);
 
         const frame = callFrameRef.current;
@@ -129,6 +132,8 @@ export default function TavusPlayer({ onClose }: Props) {
         setConversationStartFlags(null);
         setEmailActionStatus(null);
         sessionEndedRef.current = false;
+        hasJoinedMeetingRef.current = false;
+        setSessionConnected(false);
         setLoading(true);
         setStartPayload({ skip_memory: true, memory_mode: 'fresh' });
     };
@@ -146,6 +151,8 @@ export default function TavusPlayer({ onClose }: Props) {
         setConversationStartFlags(null);
         setEmailActionStatus(null);
         sessionEndedRef.current = false;
+        hasJoinedMeetingRef.current = false;
+        setSessionConnected(false);
         setLoading(true);
         setStartPayload({
             email,
@@ -160,6 +167,9 @@ export default function TavusPlayer({ onClose }: Props) {
 
         async function init() {
             try {
+                hasJoinedMeetingRef.current = false;
+                setSessionConnected(false);
+
                 // 1) Fetch new conversation URL securely from our backend route
                 const hasPayload = Object.keys(startPayload ?? {}).length > 0;
                 const res = await fetch('/api/conversation/start', {
@@ -212,7 +222,11 @@ export default function TavusPlayer({ onClose }: Props) {
 
                 // 3) Listen for events so we can remove the loading screen
                 callFrame.on('joined-meeting', () => {
-                    if (isMounted) setLoading(false);
+                    hasJoinedMeetingRef.current = true;
+                    if (isMounted) {
+                        setSessionConnected(true);
+                        setLoading(false);
+                    }
                 });
 
                 callFrame.on('error', (e) => {
@@ -224,6 +238,13 @@ export default function TavusPlayer({ onClose }: Props) {
                 });
 
                 callFrame.on('left-meeting', () => {
+                    if (!hasJoinedMeetingRef.current) {
+                        if (isMounted) {
+                            console.warn('[Daily] left before joined; ignoring pre-join leave event');
+                        }
+                        return;
+                    }
+
                     if (isMounted) finishSession();
                 });
 
@@ -342,7 +363,7 @@ export default function TavusPlayer({ onClose }: Props) {
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-950 z-[102]">
                     <div className="w-16 h-16 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin mb-6 shadow-[0_0_15px_rgba(99,102,241,0.5)]" />
                     <p className="text-white text-xl font-bold tracking-widest animate-pulse">STARTING ENGINE...</p>
-                    <p className="text-zinc-500 mt-2 text-sm">Negotiating WebRTC stream & generating Dani AI matrix...</p>
+                    <p className="text-zinc-500 mt-2 text-sm">Opening Dani Tavus room...</p>
                 </div>
             )}
 
@@ -379,6 +400,7 @@ export default function TavusPlayer({ onClose }: Props) {
                     memoryCheckInSupplied={Boolean(startPayload.email)}
                     freshSession={Boolean(startPayload.skip_memory)}
                     conversationStart={conversationStartFlags ?? undefined}
+                    sessionConnected={sessionConnected}
                     visible={!loading || Boolean(conversationStartFlags)}
                 />
             )}
@@ -387,7 +409,7 @@ export default function TavusPlayer({ onClose }: Props) {
             <div ref={videoContainerRef} className="w-full h-full" />
 
             {/* End Session Overlay Button (sits above the Daily feed) */}
-            {!loading && !error && !showResults && (
+            {sessionConnected && !loading && !error && !showResults && (
                 <div className="absolute bottom-8 left-8 md:bottom-16 md:left-16 z-[105]">
                     <button
                         onClick={finishSession}

@@ -34,13 +34,15 @@ const emptyNotes = buildDaniLiveNotesState({});
 assert.equal(emptyNotes.title, "Dani's Notes");
 assert.equal(emptyNotes.visitorLabel, "Visitor");
 assert.match(JSON.stringify(emptyNotes), /Fresh session/);
-assert.match(JSON.stringify(emptyNotes), /Listening for business context/);
-assert.match(JSON.stringify(emptyNotes), /Dani will capture the next clear next step/);
+assert.match(JSON.stringify(emptyNotes), /Waiting for the session to connect/);
+assert.match(JSON.stringify(emptyNotes), /Not captured yet/);
+assert.equal(emptyNotes.openQuestions.length, 0);
 assertNoLeak(emptyNotes);
 
 const populatedNotes = buildDaniLiveNotesState({
   displayName: "Rob",
   memoryCheckInSupplied: true,
+  sessionConnected: true,
   conversationStart: {
     memory_context_requested: true,
     memory_context_applied: true,
@@ -48,10 +50,12 @@ const populatedNotes = buildDaniLiveNotesState({
   },
 });
 assert.equal(populatedNotes.visitorLabel, "Rob");
-assert.match(JSON.stringify(populatedNotes), /Approved prior notes are active/);
-assert.match(JSON.stringify(populatedNotes), /Continuing from approved prior notes/);
-assert.match(JSON.stringify(populatedNotes), /Website check-in identity/);
+assert.match(JSON.stringify(populatedNotes), /Approved prior notes are ready/);
+assert.match(JSON.stringify(populatedNotes), /Prior context is available; live details still pending/);
+assert.match(JSON.stringify(populatedNotes), /Website check-in available/);
 assert.match(JSON.stringify(populatedNotes), /Memory on/);
+assert.match(JSON.stringify(populatedNotes), /Notes live/);
+assert.equal(populatedNotes.openQuestions.length, 0);
 assertNoLeak(populatedNotes);
 
 const emailAsName = buildDaniLiveNotesState({
@@ -96,14 +100,16 @@ assertNoLeak(confirmedResults);
 const livePanelSource = await readFile("components/dani/DaniLiveNotesPanel.tsx", "utf8");
 assert.match(livePanelSource, /buildDaniLiveNotesState/);
 assert.match(livePanelSource, /notes\.title/);
-assert.match(livePanelSource, /w-\[min\(92vw,390px\)\]/);
+assert.match(livePanelSource, /w-\[min\(90vw,360px\)\]/);
 assert.match(livePanelSource, /max-h-\[calc\(100vh-150px\)\]/);
 assert.match(livePanelSource, /aria-expanded/);
+assert.match(livePanelSource, /No open questions captured yet/);
+assert.match(livePanelSource, /sessionConnected/);
 assert.equal(livePanelSource.includes("email"), false, "live panel source should not render raw email fields");
 
 const resultsSource = await readFile("components/dani/DaniPostSessionResults.tsx", "utf8");
 assert.match(resultsSource, /buildDaniPostSessionResultsState/);
-assert.match(resultsSource, /Dani session complete/);
+assert.match(resultsSource, /Session wrap-up/);
 assert.match(resultsSource, /Confirmation Boundary/);
 assert.match(resultsSource, /sm:grid-cols-2/);
 assert.match(resultsSource, /lg:grid-cols-4/);
@@ -115,6 +121,9 @@ assert.match(playerSource, /DaniPostSessionResults/);
 assert.match(playerSource, /api\/xagent\/email-actions\/status/);
 assert.match(playerSource, /finishSession/);
 assert.match(playerSource, /safe_status_only/);
+assert.match(playerSource, /hasJoinedMeetingRef/);
+assert.match(playerSource, /sessionConnected/);
+assert.match(playerSource, /left before joined/);
 assert.equal(playerSource.includes("conversation_url_present"), false);
 
 console.log("Hermes Dani session experience T56 checks passed");

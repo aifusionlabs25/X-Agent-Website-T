@@ -16,6 +16,7 @@ type Props = {
     freshSession?: boolean;
     conversationStart?: ConversationStartFlags;
     visible?: boolean;
+    sessionConnected?: boolean;
 };
 
 const chipTone = {
@@ -31,22 +32,24 @@ export default function DaniLiveNotesPanel({
     freshSession,
     conversationStart,
     visible = true,
+    sessionConnected = false,
 }: Props) {
-    const [expanded, setExpanded] = useState(true);
+    const [expanded, setExpanded] = useState(false);
     const notes = useMemo(
         () => buildDaniLiveNotesState({
             displayName,
             memoryCheckInSupplied,
             freshSession,
             conversationStart,
+            sessionConnected,
         }),
-        [conversationStart, displayName, freshSession, memoryCheckInSupplied],
+        [conversationStart, displayName, freshSession, memoryCheckInSupplied, sessionConnected],
     );
 
     if (!visible) return null;
 
     return (
-        <aside className="pointer-events-auto absolute right-3 top-3 z-[106] w-[min(92vw,390px)] text-white md:right-5 md:top-5">
+        <aside className="pointer-events-auto absolute right-3 top-3 z-[106] w-[min(90vw,360px)] text-white md:right-5 md:top-5">
             <div className="overflow-hidden border border-white/12 bg-zinc-950/82 shadow-2xl shadow-black/55 backdrop-blur-xl">
                 <button
                     type="button"
@@ -60,7 +63,9 @@ export default function DaniLiveNotesPanel({
                         </span>
                         <span>
                             <span className="block text-sm font-black tracking-tight">{notes.title}</span>
-                            <span className="mt-0.5 block text-[11px] uppercase tracking-[0.16em] text-zinc-500">Live session cues</span>
+                            <span className="mt-0.5 block text-[11px] uppercase tracking-[0.16em] text-zinc-500">
+                                {sessionConnected ? 'Live session cues' : 'Standing by'}
+                            </span>
                         </span>
                     </span>
                     <ChevronDown
@@ -96,14 +101,20 @@ export default function DaniLiveNotesPanel({
                                 <ClipboardList size={14} />
                                 Open Questions
                             </div>
-                            <ul className="space-y-2 text-sm leading-5 text-zinc-200">
-                                {notes.openQuestions.map((question) => (
-                                    <li key={question} className="flex gap-2">
-                                        <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-cyan-300" />
-                                        <span>{question}</span>
-                                    </li>
-                                ))}
-                            </ul>
+                            {notes.openQuestions.length > 0 ? (
+                                <ul className="space-y-2 text-sm leading-5 text-zinc-200">
+                                    {notes.openQuestions.map((question) => (
+                                        <li key={question} className="flex gap-2">
+                                            <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-cyan-300" />
+                                            <span>{question}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p className="text-sm leading-5 text-zinc-400">
+                                    No open questions captured yet.
+                                </p>
+                            )}
                         </div>
 
                         <div className="mt-4 grid gap-2 text-xs leading-5 text-zinc-400">
