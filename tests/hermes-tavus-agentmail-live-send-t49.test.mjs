@@ -184,6 +184,7 @@ const callbackPayload = {
       { role: "user", content: "Hey Dani, this is Rob. I'm calling back. I need the email sent from our prior conversation." },
       { role: "assistant", content: "We can capture the request for the team." },
       { role: "user", content: "Focus the demo on intake, scheduling, and follow-up for my law firm." },
+      { role: "user", content: "Please include a TLDR recap and any onboarding package if your team has one." },
     ],
   },
 };
@@ -218,43 +219,51 @@ assert.equal(agentMailCalls.length, 3);
 const sentPayloads = agentMailCalls.map((call) => JSON.parse(call.init.body));
 assert.deepEqual(new Set(sentPayloads.map((payload) => payload.subject)).size, 3);
 assert.deepEqual(new Set(sentPayloads.map((payload) => payload.text)).size, 3);
-assert.match(sentPayloads[0].text, /\n\nDiscussion Summary\n/);
+assert.match(sentPayloads[0].text, /\n\nWhat Dani Captured\n/);
 assert.match(sentPayloads[0].text, /Vicks Law Firm/);
 assert.match(sentPayloads[0].text, /Tuesday at 10 a\.m\./i);
 assert.match(sentPayloads[0].text, /Requested meeting time: Tuesday at 10 a\.m\. \(from prior conversation notes\)/i);
-assert.match(sentPayloads[0].text, /\n\nSchedule \/ Confirmation\n/);
+assert.match(sentPayloads[0].text, /Requested materials: TLDR recap of the discussion; new client onboarding package if available; follow-up email confirmation/i);
+assert.match(sentPayloads[0].text, /\n\nHelpful Context\n/);
+assert.match(sentPayloads[0].text, /\n\nScheduling\n/);
 assert.match(sentPayloads[0].text, /Prior conversation notes mention this meeting time: Tuesday at 10 a\.m\./i);
 assert.match(sentPayloads[0].text, /meeting-specific link/i);
 assert.match(sentPayloads[0].text, /closest available 30-minute Dani Demo Call/i);
 assert.match(sentPayloads[0].text, /30-minute Dani Demo Call/i);
 assert.match(sentPayloads[0].text, /https:\/\/calendly\.com\/aifusionlabs\?utm_source=xagent/);
 assert.match(sentPayloads[0].text, /a1=Requested\+meeting\+time%3A\+Tuesday\+at\+10\+a\.m\./);
-assert.match(sentPayloads[0].text, /will not claim the meeting is scheduled until the booking is confirmed/i);
+assert.match(sentPayloads[0].text, /will not call the meeting scheduled until a booking or team confirmation is complete/i);
+assert.match(sentPayloads[0].text, /\n\nNext Step\n/);
+assert.match(sentPayloads[0].text, /approved onboarding or prep materials/i);
 assert.match(sentPayloads[0].text, /\n\nBest regards,\nDani/);
-assert.match(sentPayloads[0].html, /<h2[^>]*>Discussion Summary<\/h2>/);
-assert.match(sentPayloads[0].html, /<h2[^>]*>Schedule \/ Confirmation<\/h2>/);
+assert.match(sentPayloads[0].html, /<h2[^>]*>What Dani Captured<\/h2>/);
+assert.match(sentPayloads[0].html, /<h2[^>]*>Scheduling<\/h2>/);
 assert.match(sentPayloads[0].html, /href="https:\/\/calendly\.com\/aifusionlabs\?utm_source=xagent/);
 assert.equal(sentPayloads[0].text.includes("Hi, Thank"), false);
 assert.equal(sentPayloads[0].text.includes("Hi calling"), false);
 assert.equal(sentPayloads[0].text.includes("name=calling"), false);
-assert.match(sentPayloads[1].text, /^New Dani Intake\n\nConversation ID: conv_agentmail_live_webhook_001/m);
+assert.match(sentPayloads[1].text, /^New Dani Intake Brief\n\nConversation ID: conv_agentmail_live_webhook_001/m);
 assert.match(sentPayloads[1].text, /\n\nContact \/ Context\n/);
 assert.match(sentPayloads[1].text, /\n\nRequest Details\n/);
 assert.match(sentPayloads[1].text, /Calendly CTA included: yes/);
 assert.match(sentPayloads[1].text, /Prior memory context consulted for missing email details: yes/);
 assert.match(sentPayloads[1].text, /Requested meeting time: Tuesday at 10 a\.m\. \(from prior conversation notes\)/i);
+assert.match(sentPayloads[1].text, /Requested materials: TLDR recap of the discussion; new client onboarding package if available; follow-up email confirmation/i);
 assert.match(sentPayloads[1].text, /Visitor-facing CTA references requested time: yes/);
 assert.match(sentPayloads[1].text, /visitor requested a meeting\/demo/);
 assert.match(sentPayloads[1].text, /\n\nScheduling \/ Follow-up\n/);
+assert.match(sentPayloads[1].text, /Include or review requested materials: TLDR recap of the discussion; new client onboarding package if available; follow-up email confirmation/i);
 assert.match(sentPayloads[1].text, /Do not tell the visitor a meeting is scheduled until Calendly or a human confirms the booking/i);
 assert.match(sentPayloads[1].text, /\n\nOperator Action Plan\n/);
 assert.match(sentPayloads[1].html, /<h2[^>]*>Scheduling \/ Follow-up<\/h2>/);
 assert.match(sentPayloads[2].subject, /\[PROSPECT SCORE 10\/10\]/);
 assert.match(sentPayloads[2].text, /^Dani Lead Intelligence Report\n\nProspect Score: 10\/10/m);
+assert.match(sentPayloads[2].text, /\n\nExecutive Readout\n/);
 assert.match(sentPayloads[2].text, /Lead temperature: returning warm lead/i);
 assert.equal(sentPayloads[2].text.includes("Visitor name heard: calling"), false);
 assert.match(sentPayloads[2].text, /\n\nOpportunity Signals\n/);
 assert.match(sentPayloads[2].text, /Scheduling intent: Tuesday at 10 a\.m\. \(from prior conversation notes\)/i);
+assert.match(sentPayloads[2].text, /Requested materials: TLDR recap of the discussion; new client onboarding package if available; follow-up email confirmation/i);
 assert.match(sentPayloads[2].text, /Calendly CTA included: yes/);
 assert.match(sentPayloads[2].text, /\n\nRecommended Next Steps\n/);
 assert.match(sentPayloads[2].text, /Prioritize the requested Tuesday at 10 a\.m\. meeting window/i);
