@@ -218,8 +218,11 @@ assert.equal(readHermesEmailActionProvider({ XAGENT_HERMES_EMAIL_ACTIONS_PROVIDE
   assert.match(userFollowup.body_text_preview, /\n\nNext Step\n/);
   assert.match(userFollowup.body_text_preview, /approved onboarding or prep materials/i);
   assert.match(userFollowup.body_text_preview, /\n\nBest regards,\nDani/);
-  assert.match(userFollowup.body_html_preview, /<h2[^>]*>What Dani Captured<\/h2>/);
-  assert.match(userFollowup.body_html_preview, /<h2[^>]*>Scheduling<\/h2>/);
+  assert.match(userFollowup.body_html_preview, /Thanks for speaking with Dani\./);
+  assert.match(userFollowup.body_html_preview, /Discussion Summary/);
+  assert.match(userFollowup.body_html_preview, /Scheduling \/ Confirmation/);
+  assert.match(userFollowup.body_html_preview, /dani-tavus-custom-replica\.png/);
+  assert.match(userFollowup.body_html_preview, /Choose your time/);
   assert.match(userFollowup.body_html_preview, /href="https:\/\/calendly\.com\/aifusionlabs\?utm_source=xagent/);
   assert.equal(userFollowup.body_text_preview.includes("Hi Rob, Thanks"), false);
   assert.match(adminSummary.body_text_preview, /^New Dani Intake Brief\n\nConversation ID: conv_email_actions_draft_001/m);
@@ -235,7 +238,11 @@ assert.equal(readHermesEmailActionProvider({ XAGENT_HERMES_EMAIL_ACTIONS_PROVIDE
   assert.match(adminSummary.body_text_preview, /Include or review requested materials: TLDR recap of the discussion; new client onboarding package if available; follow-up email confirmation/i);
   assert.match(adminSummary.body_text_preview, /Do not tell the visitor a meeting is scheduled until Calendly or a human confirms the booking/i);
   assert.match(adminSummary.body_text_preview, /\n\nOperator Action Plan\n/);
-  assert.match(adminSummary.body_html_preview, /<h2[^>]*>Scheduling \/ Follow-up<\/h2>/);
+  assert.match(adminSummary.body_html_preview, /New Dani Intake/);
+  assert.match(adminSummary.body_html_preview, /Operator action required/);
+  assert.match(adminSummary.body_html_preview, /dani-tavus-custom-replica\.png/);
+  assert.match(adminSummary.body_html_preview, /Scheduling \/ Follow-up/);
+  assert.match(adminSummary.body_html_preview, /Review Intake Details/);
   assert.match(leadIntel.subject_preview, /\[PROSPECT SCORE 10\/10\]/);
   assert.match(leadIntel.body_text_preview, /^Dani Lead Intelligence Report\n\nProspect Score: 10\/10/m);
   assert.match(leadIntel.body_text_preview, /\n\nExecutive Readout\n/);
@@ -246,7 +253,11 @@ assert.equal(readHermesEmailActionProvider({ XAGENT_HERMES_EMAIL_ACTIONS_PROVIDE
   assert.match(leadIntel.body_text_preview, /Calendly CTA included: yes/);
   assert.match(leadIntel.body_text_preview, /\n\nRecommended Next Steps\n/);
   assert.match(leadIntel.body_text_preview, /Prioritize the requested Tuesday at 10 a\.m\. meeting window/i);
-  assert.match(leadIntel.body_html_preview, /<h2[^>]*>Opportunity Signals<\/h2>/);
+  assert.match(leadIntel.body_html_preview, /Dani Lead Intelligence Report/);
+  assert.match(leadIntel.body_html_preview, /Prospect Score/);
+  assert.match(leadIntel.body_html_preview, /dani-tavus-custom-replica\.png/);
+  assert.match(leadIntel.body_html_preview, /Opportunity Signals/);
+  assert.match(leadIntel.body_html_preview, /Open Opportunity Brief/);
   for (const action of result.actions) {
     assert.equal(action.draft_created, true);
     assert.equal(action.send_attempted, false);
