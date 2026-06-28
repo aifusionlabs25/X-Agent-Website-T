@@ -201,7 +201,56 @@ const storedContext = await readStoredEmailMemoryContext(
 assert.equal(storedContext.lookup_source, "upstash_email_identity_memory_store");
 assert.match(storedContext.memory_context.recalled_memory_summary, /soccer products/i);
 assert.equal(storedContext.memory_context.next_session_id, "xagent_session_store_test_002");
+assert.equal(storedContext.memory_history_record_count, 1);
 assertNoRawSensitiveValue(storedContext);
+
+await storeConversationEmailMappingForStart(
+  {
+    requestBody: { email: "rob@example.com", display_name: "Rob" },
+    session_id: "xagent_session_store_test_005",
+    provider_conversation_id: "conv_store_test_005",
+    started_at: 1760000000000,
+  },
+  { env: envOpen, fetchImpl },
+);
+
+const secondStoreResult = await storeEmailMemoryFromConversationTranscript(
+  {
+    provider_conversation_id: "conv_store_test_005",
+    transcript: [
+      {
+        role: "user",
+        content: "I run Vicks Law Firm and want Dani to remember legal intake details.",
+      },
+      {
+        role: "user",
+        content: "The next step is a meeting request for Friday at one p.m.",
+      },
+      {
+        role: "agent",
+        content: "I can capture that requested meeting window for review.",
+      },
+    ],
+  },
+  { env: envOpen, fetchImpl },
+);
+assert.equal(secondStoreResult.memory_record_stored, true);
+assert.equal(secondStoreResult.memory_history_record_count, 2);
+
+const rolledUpContext = await readStoredEmailMemoryContext(
+  {
+    email: "rob@example.com",
+    nextSessionId: "xagent_session_store_test_006",
+  },
+  { env: envOpen, fetchImpl },
+);
+assert.equal(rolledUpContext.memory_history_record_count, 2);
+assert.equal(rolledUpContext.memory_context.prior_memory_record_ids.length, 2);
+assert.equal(rolledUpContext.memory_context.provenance.memory_record_count, 2);
+assert.match(rolledUpContext.memory_context.recalled_memory_summary, /soccer products/i);
+assert.match(rolledUpContext.memory_context.recalled_memory_summary, /Vicks Law Firm/i);
+assert.match(rolledUpContext.memory_context.recalled_memory_summary, /Friday at one p\.m\./i);
+assertNoRawSensitiveValue(rolledUpContext);
 
 await storeConversationEmailMappingForStart(
   {
@@ -216,9 +265,9 @@ const priorMemoryForNewConversation = await readStoredEmailMemoryRecordForConver
   "conv_store_test_004",
   { env: envOpen, fetchImpl },
 );
-assert.equal(priorMemoryForNewConversation.memory_record_id, storeResult.memory_record_id);
-assert.match(priorMemoryForNewConversation.recalled_memory_summary, /Tuesday at 10 a\.m\. or 2 p\.m\./i);
-assert.match(priorMemoryForNewConversation.recalled_memory_summary, /soccer products/i);
+assert.equal(priorMemoryForNewConversation.memory_record_id, secondStoreResult.memory_record_id);
+assert.match(priorMemoryForNewConversation.recalled_memory_summary, /Vicks Law Firm/i);
+assert.match(priorMemoryForNewConversation.recalled_memory_summary, /Friday at one p\.m\./i);
 assertNoRawSensitiveValue(priorMemoryForNewConversation);
 
 const resolvedForStart = await maybeResolveServerSideMemoryContextForStart(
@@ -233,6 +282,9 @@ assert.equal(resolvedForStart.memory_context_requested, true);
 assert.equal(resolvedForStart.memory_context_applied, true);
 assert.equal(resolvedForStart.tavus_conversational_context_attached, true);
 assert.equal(resolvedForStart.server_side_memory_context_source, "email_identity_memory_store");
+assert.match(resolvedForStart.conversationalContext, /soccer products/i);
+assert.match(resolvedForStart.conversationalContext, /Vicks Law Firm/i);
+assert.match(resolvedForStart.conversationalContext, /Friday at one p\.m\./i);
 assertNoRawSensitiveValue(resolvedForStart);
 
 console.log("Hermes email memory store T41 checks passed");

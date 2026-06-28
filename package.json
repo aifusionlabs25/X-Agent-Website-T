@@ -54,6 +54,7 @@
     "test:hermes-dani-prompt-v2-design-t50": "node tests/hermes-dani-prompt-v2-design-t50.test.mjs",
     "test:hermes-dani-objective-deconfliction-t53": "node tests/hermes-dani-objective-deconfliction-t53.test.mjs",
     "test:hermes-dani-session-experience-t56": "node tests/hermes-dani-session-experience-t56.test.mjs",
+    "test:hermes-dani-system-prompt-v3-t58": "node tests/hermes-dani-system-prompt-v3-t58.test.mjs",
     "test:hermes-email-memory-operator-t45": "node tests/hermes-email-memory-operator-t45.test.mjs",
     "test:hermes-email-communications-operator-t46": "node tests/hermes-email-communications-operator-t46.test.mjs",
     "test:hermes-agentmail-adapter-readiness-t47": "node tests/hermes-agentmail-adapter-readiness-t47.test.mjs",
