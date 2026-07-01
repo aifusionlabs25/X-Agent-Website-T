@@ -56,6 +56,7 @@
     "test:hermes-dani-session-experience-t56": "node tests/hermes-dani-session-experience-t56.test.mjs",
     "test:hermes-dani-system-prompt-v3-t58": "node tests/hermes-dani-system-prompt-v3-t58.test.mjs",
     "test:hal-public-demo-lane": "node tests/hal-public-demo-lane.test.mjs",
+    "test:hal-operator-backend": "node tests/hal-operator-backend.test.mjs",
     "test:hermes-email-memory-operator-t45": "node tests/hermes-email-memory-operator-t45.test.mjs",
     "test:hermes-email-communications-operator-t46": "node tests/hermes-email-communications-operator-t46.test.mjs",
     "test:hermes-agentmail-adapter-readiness-t47": "node tests/hermes-agentmail-adapter-readiness-t47.test.mjs",
