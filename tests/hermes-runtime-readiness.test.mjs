@@ -9,6 +9,7 @@ const closed = buildXAgentRuntimeReadiness({
 
 assert.equal(closed.runtime_readiness_version, XAGENT_RUNTIME_READINESS_VERSION);
 assert.equal(closed.checked_at, "2026-06-19T19:00:00.000Z");
+assert.equal(closed.agent_slug, "dani");
 assert.equal(closed.xagent_session_identity_supported, true);
 assert.equal(closed.memory_context_injection_code_present, true);
 assert.equal(closed.tavus_conversational_context_supported, true);
@@ -99,6 +100,7 @@ assert.equal(open.email_outbound_contact_store_env_gates_open, true);
 assert.equal(open.agentmail_adapter_env_gates_open, true);
 assert.equal(open.agentmail_inbox_address_configured, true);
 assert.equal(open.agentmail_inbox_matches_dani, true);
+assert.equal(open.agentmail_inbox_matches_agent, true);
 assert.equal(open.agentmail_api_key_present, true);
 assert.equal(open.agentmail_live_calls_enabled, false);
 assert.equal(open.agentmail_send_adapter_env_gates_open, true);
@@ -162,7 +164,44 @@ assert.equal(agentMailLiveRequested.agentmail_send_adapter_ready_for_t49_one_sen
 assert.equal(agentMailLiveRequested.agentmail_live_calls_enabled, true);
 assert.equal(agentMailLiveRequested.agentmail_admin_recipient_configured, true);
 
-const unsafeSerialized = JSON.stringify(open);
+const halAgentMailLiveRequested = buildXAgentRuntimeReadiness({
+  agentSlug: "hal",
+  env: {
+    XAGENT_HERMES_EMAIL_ACTIONS_ENABLED: "true",
+    XAGENT_HAL_HERMES_EMAIL_ACTIONS_PILOT_ENABLED: "true",
+    XAGENT_HERMES_EMAIL_ACTIONS_KILL_SWITCH: "false",
+    XAGENT_HERMES_EMAIL_ACTIONS_MODE: "draft_only",
+    XAGENT_HERMES_EMAIL_ACTIONS_PROVIDER: "agentmail",
+    XAGENT_HERMES_AGENTMAIL_ADAPTER_ENABLED: "true",
+    XAGENT_HAL_AGENTMAIL_ADAPTER_PILOT_ENABLED: "true",
+    XAGENT_HERMES_AGENTMAIL_ADAPTER_KILL_SWITCH: "false",
+    XAGENT_HAL_AGENTMAIL_ADDRESS: "hermes-hal@agentmail.to",
+    HAL_AGENTMAIL_API_KEY: "am_us_hal_runtime_test_secret",
+    XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_ENABLED: "true",
+    XAGENT_HAL_AGENTMAIL_SEND_ADAPTER_PILOT_ENABLED: "true",
+    XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_KILL_SWITCH: "false",
+    XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_MODE: "live",
+    UPSTASH_REDIS_REST_URL: "https://unit-test-upstash.invalid",
+    UPSTASH_REDIS_REST_TOKEN: "unit-test-token",
+    XAGENT_HAL_HERMES_EMAIL_ADMIN_RECIPIENT: "operator@example.com",
+  },
+  now: "2026-06-19T19:00:00.000Z",
+});
+assert.equal(halAgentMailLiveRequested.agent_slug, "hal");
+assert.equal(halAgentMailLiveRequested.hermes_email_actions_env_gates_open, true);
+assert.equal(halAgentMailLiveRequested.agentmail_adapter_env_gates_open, true);
+assert.equal(halAgentMailLiveRequested.agentmail_inbox_address_configured, true);
+assert.equal(halAgentMailLiveRequested.agentmail_inbox_matches_dani, false);
+assert.equal(halAgentMailLiveRequested.agentmail_inbox_matches_agent, true);
+assert.equal(halAgentMailLiveRequested.agentmail_api_key_present, true);
+assert.equal(halAgentMailLiveRequested.agentmail_send_adapter_env_gates_open, true);
+assert.equal(halAgentMailLiveRequested.agentmail_send_adapter_mode, "live");
+assert.equal(halAgentMailLiveRequested.agentmail_send_adapter_live_mode_requested, true);
+assert.equal(halAgentMailLiveRequested.agentmail_send_adapter_ready_for_t49_one_send_test, true);
+assert.equal(halAgentMailLiveRequested.agentmail_live_calls_enabled, true);
+assert.equal(halAgentMailLiveRequested.agentmail_admin_recipient_configured, true);
+
+const unsafeSerialized = JSON.stringify([open, halAgentMailLiveRequested]);
 const forbiddenExactKeys = new Set([
   "conversation_url",
   "conversational_context",
@@ -186,7 +225,9 @@ const forbiddenSubstrings = [
   "XAGENT_HERMES_GATEWAY_TOKEN",
   "XAGENT_HERMES_GATEWAY_URL",
   "AGENTMAIL_API_KEY",
+  "HAL_AGENTMAIL_API_KEY",
   "am_us_inbox_runtime_test_secret",
+  "am_us_hal_runtime_test_secret",
   "calendly.com",
   "Bearer ",
   "Internal continuity context",
@@ -229,5 +270,11 @@ const routeSource = await readFile("app/api/xagent/runtime-readiness/route.ts", 
 assert.match(routeSource, /buildXAgentRuntimeReadiness/);
 assert.equal(routeSource.includes("createConversation"), false);
 assert.equal(routeSource.includes("fetch("), false);
+
+const halRouteSource = await readFile("app/api/hal/runtime-readiness/route.ts", "utf8");
+assert.match(halRouteSource, /buildXAgentRuntimeReadiness/);
+assert.match(halRouteSource, /agentSlug:\s*"hal"/);
+assert.equal(halRouteSource.includes("createConversation"), false);
+assert.equal(halRouteSource.includes("fetch("), false);
 
 console.log("Hermes runtime readiness checks passed");
