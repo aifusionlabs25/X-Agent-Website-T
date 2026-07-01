@@ -126,8 +126,11 @@ const webhookSource = await readFile("app/api/webhook/route.ts", "utf8");
 assert.match(webhookSource, /searchParams\.get\("agent"\) === "hal"/);
 
 const webhookHandlerSource = await readFile("lib/xagent/tavusTranscriptionMemoryWebhook.mjs", "utf8");
-assert.match(webhookHandlerSource, /hal_memory_only_webhook/);
-assert.match(webhookHandlerSource, /skipped_for_hal_public_demo/);
+assert.doesNotMatch(webhookHandlerSource, /hal_memory_only_webhook/);
+assert.doesNotMatch(webhookHandlerSource, /skipped_for_hal_public_demo/);
+assert.match(webhookHandlerSource, /runHermesEmailCommunicationsOperator/);
+assert.match(webhookHandlerSource, /runAgentMailPostSessionSends/);
+assert.match(webhookHandlerSource, /storeHermesEmailActionStatus/);
 
 const configSource = await readFile("lib/config.ts", "utf8");
 assert.match(configSource, /isHal \? env\("HAL_TAVUS_PERSONA_ID"\) : env\("TAVUS_PERSONA_ID"\)/);
@@ -145,10 +148,12 @@ assert.match(agentsSource, /\/agents\/hal\/hal-newest-2026-06-30\.png/);
 const halSystemPrompt = await readFile("docs/HAL_TAVUS_SYSTEM_PROMPT_2026-07-01.md", "utf8");
 assert.match(halSystemPrompt, /MANDATORY FIRST GREETING/);
 assert.match(halSystemPrompt, /You are not Brian Halligan/);
-assert.match(halSystemPrompt, /You do not have Brian's private memory/);
+assert.match(halSystemPrompt, /You do not have Brian[’']s private memory/);
 assert.match(halSystemPrompt, /The default deployment profile is PUBLIC_DEMO/);
 assert.match(halSystemPrompt, /A successful action claim requires/);
 assert.match(halSystemPrompt, /MEETING-DELEGATE RULE/);
+assert.match(halSystemPrompt, /ANTI-CREEPY NATURALNESS RULE/);
+assert.match(halSystemPrompt, /I can draft an email\. I can only say it was sent if an authorized email tool executes it and returns a successful result\./);
 assert.doesNotMatch(halSystemPrompt, /â/);
 
 console.log("Hal public demo lane checks passed");

@@ -42,20 +42,45 @@ XAGENT_EMAIL_MEMORY_STORE_KILL_SWITCH=false
 
 The `DANI` names above are the existing shared pilot gates. Hal separation happens in the stored identity namespace and Redis keys with `agent_slug=hal`.
 
-## Do Not Add For This Public Demo
+## Add These For Hal AgentMail
 
-Do not add AgentMail or outbound-action keys for Hal yet. The Hal webhook path is memory-only for this demo and skips email/action sending.
+Add these only when Hal post-session email follow-up should be available. Keep the mode in `live` only when you are ready for real AgentMail sends after Tavus transcript callbacks.
+
+```env
+XAGENT_HERMES_EMAIL_ACTIONS_ENABLED=true
+XAGENT_HAL_HERMES_EMAIL_ACTIONS_PILOT_ENABLED=true
+XAGENT_HERMES_EMAIL_ACTIONS_KILL_SWITCH=false
+XAGENT_HERMES_EMAIL_ACTIONS_MODE=draft_only
+XAGENT_HERMES_EMAIL_ACTIONS_PROVIDER=agentmail
+
+XAGENT_HERMES_AGENTMAIL_ADAPTER_ENABLED=true
+XAGENT_HAL_AGENTMAIL_ADAPTER_PILOT_ENABLED=true
+XAGENT_HERMES_AGENTMAIL_ADAPTER_KILL_SWITCH=false
+XAGENT_HAL_AGENTMAIL_ADDRESS=hermes-hal@agentmail.to
+HAL_AGENTMAIL_API_KEY=
+
+XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_ENABLED=true
+XAGENT_HAL_AGENTMAIL_SEND_ADAPTER_PILOT_ENABLED=true
+XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_KILL_SWITCH=false
+XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_MODE=live
+XAGENT_HAL_HERMES_EMAIL_ADMIN_RECIPIENT=
+AGENTMAIL_API_BASE_URL=https://api.agentmail.to
+```
+
+Do not put `HAL_AGENTMAIL_API_KEY` in source code, docs, screenshots, or client-side `NEXT_PUBLIC_` variables. It belongs only in `.env.local` for local testing and Vercel Environment Variables for hosted deployments.
 
 ## Vercel Steps
 
 1. Open the Vercel project for `x-agent-website-t`.
 2. Go to `Settings -> Environment Variables`.
-3. Add the three Hal variables above to `Preview`.
+3. Add the Hal Tavus variables above to `Preview`.
 4. Deploy the branch preview.
 5. Open `/hal` on the preview URL and run one short session.
 6. End the session, wait for the Tavus transcript callback, then start again with the same email to confirm continuity.
-7. Only after the preview works, copy the same Hal variables to `Production`.
+7. If memory works and you want real Hal email sends, add the Hal AgentMail variables to `Preview`.
+8. Run one controlled follow-up test with your own email and confirm an AgentMail receipt.
+9. Only after the preview works, copy the same Hal variables to `Production`.
 
 ## Safety Claim For Hassaan
 
-This demo shows a public Tavus-backed Hal concept with email-keyed memory continuity. It does not claim Brian impersonation, private Google Drive ingestion, Zoom/Teams meeting presence, or completed outbound actions.
+This demo shows a public Tavus-backed Hal concept with email-keyed memory continuity and gated post-session AgentMail follow-up. It does not claim Brian impersonation, private Google Drive ingestion, Zoom/Teams meeting presence, or completed outbound actions unless the backend send receipt confirms the action.
