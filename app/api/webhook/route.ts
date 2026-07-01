@@ -5,8 +5,10 @@ export async function POST(request: Request) {
     try {
         const url = new URL(request.url);
         const body = await request.json();
+        const agentSlug = url.searchParams.get("agent") === "hal" ? "hal" : undefined;
         const result = await handleTavusTranscriptionMemoryWebhook(body, {
             callbackToken: url.searchParams.get("token") ?? undefined,
+            agentSlug,
         });
         return NextResponse.json(result);
     } catch (err: unknown) {

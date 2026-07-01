@@ -12,6 +12,14 @@ export const ALL_AGENTS: AgentData[] = [
         accentColor: '#6366f1',
     },
     {
+        slug: 'hal',
+        name: 'HAL',
+        role: 'Executive Autopilot Interface',
+        thumbnailSrc: '/agents/hal/hal-newest-2026-06-30.png',
+        accentColor: '#d6b56d',
+        liveUrl: '/hal',
+    },
+    {
         slug: 'james',
         name: 'JAMES',
         role: 'X-Agent Legal Intake',
@@ -57,6 +65,7 @@ export const SALES_AGENTS: AgentData[] = [
     ALL_AGENTS.find(a => a.slug === 'dani')!,
     ALL_AGENTS.find(a => a.slug === 'amy')!,
     ALL_AGENTS.find(a => a.slug === 'sarah-netic')!,
+    ALL_AGENTS.find(a => a.slug === 'hal')!,
 ];
 
 // Service row: James, Morgan, Luna — all unique images

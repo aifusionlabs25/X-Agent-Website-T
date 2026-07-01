@@ -1,11 +1,12 @@
 import { cfg } from "./config";
 import { buildCreateConversationBody } from "./tavusCreateConversationBody.mjs";
 
-export async function createConversation(
+export async function createConversationWithConfig(
+    agentConfig: typeof cfg,
     callbackUrl?: string,
     options?: { conversationalContext?: string },
 ) {
-    const body = buildCreateConversationBody(cfg, {
+    const body = buildCreateConversationBody(agentConfig, {
         callbackUrl,
         conversationalContext: options?.conversationalContext,
     });
@@ -14,7 +15,7 @@ export async function createConversation(
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "x-api-key": cfg.tavusApiKey,
+            "x-api-key": agentConfig.tavusApiKey,
         },
         body: JSON.stringify(body),
     });
@@ -25,4 +26,11 @@ export async function createConversation(
     }
 
     return res.json() as Promise<{ conversation_url: string; conversation_id: string }>;
+}
+
+export async function createConversation(
+    callbackUrl?: string,
+    options?: { conversationalContext?: string },
+) {
+    return createConversationWithConfig(cfg, callbackUrl, options);
 }
