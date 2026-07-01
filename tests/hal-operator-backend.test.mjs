@@ -6,6 +6,7 @@ import {
 import {
   buildHalMeetingPrepBrief,
   buildHalOperatorDashboardSnapshot,
+  storeHalConversationStartReceipt,
   storeHalMeetingPrepBrief,
   storeHalOperatorSessionArtifacts,
 } from "../lib/xagent/halOperatorStore.mjs";
@@ -78,6 +79,34 @@ await storeConversationEmailMappingForStart(
   options,
 );
 
+const startResult = await storeHalConversationStartReceipt(
+  {
+    provider_conversation_id: "conv_hal_operator_001",
+    session_id: "xagent_session_hal_operator_001",
+    started_at: Date.parse("2026-07-01T17:55:00.000Z"),
+    callback_url_present: true,
+    callback_agent_param_present: true,
+    callback_token_present: true,
+    email_supplied: true,
+    email_memory_mapping_attempted: true,
+    email_memory_mapping_written: true,
+    outbound_contact_email_stored: true,
+    memory_context_requested: true,
+    memory_context_applied: true,
+    tavus_conversational_context_attached: true,
+  },
+  options,
+);
+
+assert.equal(startResult.hal_operator_start_stored, true);
+const startedDashboard = await buildHalOperatorDashboardSnapshot({ ...options, limit: 10 });
+assert.equal(startedDashboard.status, "operator_store_waiting_for_transcript");
+assert.equal(startedDashboard.metrics.recent_start_count, 1);
+assert.equal(startedDashboard.metrics.waiting_transcript_count, 1);
+assert.equal(startedDashboard.recent_starts[0].callback_agent_param_present, true);
+assert.equal(startedDashboard.recent_starts[0].email_memory_mapping_written, true);
+assert.equal(startedDashboard.recent_starts[0].tavus_post_session_status, "waiting_for_transcription_ready");
+
 const transcript = [
   { role: "user", content: "Hal, remember that I care about executive autopilot boundaries and a meeting brief." },
   { role: "agent", content: "I can prepare a briefing and make the handoff boundary clear." },
@@ -142,11 +171,15 @@ assert.equal(storeResult.hal_operator_receipt_count, 6);
 const dashboard = await buildHalOperatorDashboardSnapshot({ ...options, limit: 10 });
 assert.equal(dashboard.status, "operator_store_ready");
 assert.equal(dashboard.metrics.recent_session_count, 1);
+assert.equal(dashboard.metrics.recent_start_count, 1);
+assert.equal(dashboard.metrics.waiting_transcript_count, 0);
 assert.equal(dashboard.metrics.memory_write_count, 1);
 assert.equal(dashboard.metrics.pending_action_count, 2);
 assert.equal(dashboard.metrics.sent_email_count, 0);
 assert.equal(dashboard.recent_sessions[0].brief.signals.includes("approval_boundary_signal"), true);
 assert.equal(dashboard.recent_sessions[0].brief.signals.includes("executive_autopilot_signal"), true);
+assert.equal(dashboard.recent_starts[0].transcription_ready_seen, true);
+assert.equal(dashboard.recent_starts[0].tavus_post_session_status, "transcription_ready_processed");
 assert.equal(dashboard.receipts.some((receipt) => receipt.capability === "hermes.memory_write" && receipt.status === "completed"), true);
 assert.equal(dashboard.receipts.some((receipt) => receipt.capability === "agentmail.post_session_send" && receipt.status === "queued_for_review"), true);
 assertNoUnsafeValue(dashboard);

@@ -16,6 +16,7 @@ import {
 } from "@/lib/xagent/conversationStartMemoryContext.mjs";
 import { storeConversationEmailMappingForStart } from "@/lib/xagent/emailMemoryStore.mjs";
 import { maybeResolveServerSideMemoryContextForStart } from "@/lib/xagent/serverSideMemoryContextResolver.mjs";
+import { storeHalConversationStartReceipt } from "@/lib/xagent/halOperatorStore.mjs";
 
 const HAL_AGENT_NAME = "Hal";
 
@@ -36,6 +37,15 @@ function buildCallbackUrl(host: string | null) {
     }
 
     return url.toString();
+}
+
+function hasSuppliedEmail(body: unknown) {
+    if (!body || typeof body !== "object" || Array.isArray(body)) return false;
+    const payload = body as Record<string, unknown>;
+    return ["email", "returning_email", "returningEmail"].some((key) => {
+        const value = payload[key];
+        return typeof value === "string" && value.trim().length > 0;
+    });
 }
 
 type ConversationStartMemoryContext = {
@@ -107,8 +117,13 @@ export async function POST(request: Request) {
             conversationalContext: memoryContext.conversationalContext,
         });
 
+        let emailMappingResult: Record<string, unknown> = {
+            email_memory_mapping_attempted: false,
+            email_memory_mapping_written: false,
+        };
+
         try {
-            await storeConversationEmailMappingForStart({
+            emailMappingResult = await storeConversationEmailMappingForStart({
                 requestBody,
                 session_id: identity.session_id,
                 provider_conversation_id: data.conversation_id,
@@ -120,9 +135,39 @@ export async function POST(request: Request) {
             console.warn("Hal email memory mapping was not stored for conversation start.", mappingError);
         }
 
+        let halStartReceiptResult: Record<string, unknown> = {
+            hal_operator_start_store_attempted: false,
+            hal_operator_start_stored: false,
+        };
+
+        try {
+            const callback = callbackUrl ? new URL(callbackUrl) : null;
+            halStartReceiptResult = await storeHalConversationStartReceipt({
+                provider_conversation_id: data.conversation_id,
+                session_id: identity.session_id,
+                started_at: startedAt,
+                callback_url_present: Boolean(callbackUrl),
+                callback_agent_param_present: callback?.searchParams.get("agent") === HAL_AGENT_SLUG,
+                callback_token_present: Boolean(callback?.searchParams.get("token")),
+                email_supplied: hasSuppliedEmail(requestBody),
+                email_memory_mapping_attempted: Boolean(emailMappingResult.email_memory_mapping_attempted),
+                email_memory_mapping_written: Boolean(emailMappingResult.email_memory_mapping_written),
+                outbound_contact_email_stored: Boolean(emailMappingResult.outbound_contact_email_stored),
+                memory_context_requested: Boolean(memoryContext.memory_context_requested),
+                memory_context_applied: Boolean(memoryContext.memory_context_applied),
+                tavus_conversational_context_attached: Boolean(memoryContext.tavus_conversational_context_attached),
+            }, {
+                agentSlug: HAL_AGENT_SLUG,
+            });
+        } catch (operatorStartError) {
+            console.warn("Hal operator start receipt was not stored.", operatorStartError);
+        }
+
         return NextResponse.json({
             ...buildXAgentConversationStartResponse(data, startedAt, identity),
             ...safeConversationStartMemoryFlags(memoryContext),
+            hal_operator_start_store_attempted: Boolean(halStartReceiptResult.hal_operator_start_store_attempted),
+            hal_operator_start_stored: Boolean(halStartReceiptResult.hal_operator_start_stored),
             hal_public_demo_lane: true,
             outbound_action_taken: false,
             live_agentmail_called: false,

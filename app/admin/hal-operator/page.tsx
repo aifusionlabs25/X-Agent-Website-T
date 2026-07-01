@@ -23,6 +23,7 @@ export const metadata = {
 
 type Snapshot = Awaited<ReturnType<typeof buildHalOperatorDashboardSnapshot>>;
 type RecentSession = Snapshot["recent_sessions"][number];
+type RecentStart = Snapshot["recent_starts"][number];
 type PendingAction = Snapshot["pending_actions"][number];
 type Receipt = Snapshot["receipts"][number];
 
@@ -62,6 +63,35 @@ function EmptyState() {
                 </p>
             </div>
         </section>
+    );
+}
+
+function RecentStartRow({ start }: { start: RecentStart }) {
+    const waiting = !start.transcription_ready_seen;
+    return (
+        <article className="border border-[#302d23] bg-[#14120d] p-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#d7b46a]">
+                        {formatDate(start.created_at)}
+                    </p>
+                    <h3 className="mt-2 text-base font-black text-[#f6f1e6]">
+                        Tavus start captured
+                    </h3>
+                </div>
+                <span className={waiting
+                    ? "border border-[#d7b46a]/45 px-2 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-[#efd996]"
+                    : "border border-[#7be6b6]/45 px-2 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-[#7be6b6]"}>
+                    {waiting ? "Waiting transcript" : "Processed"}
+                </span>
+            </div>
+            <div className="mt-4 grid gap-2 text-xs text-[#aeb7ae] sm:grid-cols-2">
+                <span>Callback: {start.callback_url_present && start.callback_agent_param_present ? "ready" : "check callback"}</span>
+                <span>Email check-in: {start.email_supplied ? "yes" : "fresh session"}</span>
+                <span>Memory mapping: {start.email_memory_mapping_written ? "stored" : "not stored"}</span>
+                <span>Status: {labelize(start.tavus_post_session_status)}</span>
+            </div>
+        </article>
     );
 }
 
@@ -150,12 +180,15 @@ export default async function HalOperatorPage() {
             generated_at: new Date().toISOString(),
             metrics: {
                 recent_session_count: 0,
+                recent_start_count: 0,
+                waiting_transcript_count: 0,
                 memory_write_count: 0,
                 sent_email_count: 0,
                 pending_action_count: 0,
                 claim_safe_receipt_count: 0,
             },
             recent_sessions: [],
+            recent_starts: [],
             pending_actions: [],
             receipts: [],
             prep_briefs: [],
@@ -170,6 +203,7 @@ export default async function HalOperatorPage() {
 
     const metrics = [
         { label: "Recent Sessions", value: snapshot.metrics.recent_session_count, icon: Activity },
+        { label: "Waiting Transcript", value: snapshot.metrics.waiting_transcript_count, icon: Clock3 },
         { label: "Memory Writes", value: snapshot.metrics.memory_write_count, icon: BrainCircuit },
         { label: "Emails Sent", value: snapshot.metrics.sent_email_count, icon: MailCheck },
         { label: "Pending Review", value: snapshot.metrics.pending_action_count, icon: Inbox },
@@ -218,7 +252,7 @@ export default async function HalOperatorPage() {
             </section>
 
             <section className="px-5 py-8 sm:px-8 lg:px-12">
-                <div className="grid gap-4 md:grid-cols-4">
+                <div className="grid gap-4 md:grid-cols-5">
                     {metrics.map((metric, index) => {
                         const Icon = metric.icon;
                         return (
@@ -246,6 +280,21 @@ export default async function HalOperatorPage() {
                             <SessionRow key={session.provider_conversation_id} session={session} />
                         ))
                         : <EmptyState />}
+
+                    {snapshot.recent_starts.length > 0 && (
+                        <section className="space-y-3 border border-[#2b302b] bg-[#0e110d] p-5">
+                            <div className="flex items-center justify-between gap-4">
+                                <div>
+                                    <p className="text-xs font-black uppercase tracking-[0.22em] text-[#d7b46a]">Start Receipts</p>
+                                    <h2 className="mt-2 text-2xl font-black text-white">Tavus Callback Watch</h2>
+                                </div>
+                                <Clock3 className="text-[#d7b46a]" />
+                            </div>
+                            {snapshot.recent_starts.map((start) => (
+                                <RecentStartRow key={start.provider_conversation_id} start={start} />
+                            ))}
+                        </section>
+                    )}
                 </div>
 
                 <aside className="space-y-6">
