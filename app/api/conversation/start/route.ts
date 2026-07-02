@@ -11,20 +11,10 @@ import {
 } from "@/lib/xagent/conversationStartMemoryContext.mjs";
 import { maybeResolveServerSideMemoryContextForStart } from "@/lib/xagent/serverSideMemoryContextResolver.mjs";
 import { storeConversationEmailMappingForStart } from "@/lib/xagent/emailMemoryStore.mjs";
+import { buildTavusCallbackUrl } from "@/lib/xagent/tavusCallbackUrl.mjs";
 
 function env(key: string) {
     return process.env[key]?.replace(/^\uFEFF/, "").trim() ?? "";
-}
-
-function buildCallbackUrl(host: string | null) {
-    if (!host) return undefined;
-    const protocol = host.includes('localhost') ? 'http' : 'https';
-    const baseUrl = `${protocol}://${host}/api/webhook`;
-    const callbackToken = env("XAGENT_TAVUS_CALLBACK_TOKEN");
-    if (!callbackToken) return baseUrl;
-    const url = new URL(baseUrl);
-    url.searchParams.set("token", callbackToken);
-    return url.toString();
 }
 
 type ConversationStartMemoryContext = {
@@ -41,7 +31,10 @@ export async function POST(request: Request) {
 
         // Dynamically build the webhook callback URL
         const host = request.headers.get('host');
-        const callbackUrl = buildCallbackUrl(host);
+        const callbackUrl = buildTavusCallbackUrl({
+            host,
+            token: env("XAGENT_TAVUS_CALLBACK_TOKEN"),
+        });
         const requestBody = await readOptionalJsonBody(request);
 
         let memoryContext: ConversationStartMemoryContext = buildNoMemoryConversationStartContext();

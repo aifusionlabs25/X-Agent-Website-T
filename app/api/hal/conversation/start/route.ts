@@ -17,26 +17,12 @@ import {
 import { storeConversationEmailMappingForStart } from "@/lib/xagent/emailMemoryStore.mjs";
 import { maybeResolveServerSideMemoryContextForStart } from "@/lib/xagent/serverSideMemoryContextResolver.mjs";
 import { storeHalConversationStartReceipt } from "@/lib/xagent/halOperatorStore.mjs";
+import { buildTavusCallbackUrl } from "@/lib/xagent/tavusCallbackUrl.mjs";
 
 const HAL_AGENT_NAME = "Hal";
 
 function env(key: string) {
     return process.env[key]?.replace(/^\uFEFF/, "").trim() ?? "";
-}
-
-function buildCallbackUrl(host: string | null) {
-    if (!host) return undefined;
-    const protocol = host.includes("localhost") || host.includes("127.0.0.1") ? "http" : "https";
-    const baseUrl = `${protocol}://${host}/api/webhook`;
-    const url = new URL(baseUrl);
-    url.searchParams.set("agent", HAL_AGENT_SLUG);
-
-    const callbackToken = env("XAGENT_TAVUS_CALLBACK_TOKEN");
-    if (callbackToken) {
-        url.searchParams.set("token", callbackToken);
-    }
-
-    return url.toString();
 }
 
 function hasSuppliedEmail(body: unknown) {
@@ -60,7 +46,11 @@ export async function POST(request: Request) {
         const startedAt = Date.now();
         const identity = createXAgentSessionIdentity({ agentSlug: HAL_AGENT_SLUG });
         const host = request.headers.get("host");
-        const callbackUrl = buildCallbackUrl(host);
+        const callbackUrl = buildTavusCallbackUrl({
+            host,
+            agentSlug: HAL_AGENT_SLUG,
+            token: env("XAGENT_TAVUS_CALLBACK_TOKEN"),
+        });
         const requestBody = await readOptionalJsonBody(request);
 
         let memoryContext: ConversationStartMemoryContext = buildNoMemoryConversationStartContext();
