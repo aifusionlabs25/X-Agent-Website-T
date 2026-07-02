@@ -81,9 +81,12 @@ function createMockFetch() {
     if (body.headers["X-XAgent-Action-Type"] === "email.user_followup") {
       assert.match(body.subject, /executive-autopilot next steps/i);
       assert.match(body.text, /TL;DR/);
+      assert.match(body.text, /Executive Artifact/);
+      assert.match(body.text, /Execution Boundary/);
       assert.match(body.text, /Human Handoff \/ Next Steps/);
       assert.match(body.text, /No meeting, email, CRM update, or external action/i);
       assert.match(body.html, /TL;DR \/ Session Brief/);
+      assert.match(body.html, /Executive Artifact/);
       assert.match(body.html, /HAL \/\/ EXECUTIVE AUTOPILOT/);
       assert.match(body.html, /Operator<br>memo/);
       assert.match(body.html, /#f2eadc/);
@@ -93,12 +96,14 @@ function createMockFetch() {
       assert.match(body.text, /Session Details/);
       assert.match(body.text, /Generated at:/);
       assert.match(body.text, /Conversation ID: conv_hal_agentmail_live_001/);
+      assert.match(body.text, /Executive Artifact/);
       assert.match(body.html, /Hal Session Operations Brief/);
       assert.match(body.html, /Review Hal Operations Brief/);
     }
     if (body.headers["X-XAgent-Action-Type"] === "email.lead_intel") {
       assert.match(body.subject, /HAL AUTOPILOT FIT/i);
       assert.match(body.text, /Executive Autopilot Readout/);
+      assert.match(body.text, /Executive Artifact/);
       assert.match(body.text, /Autopilot Signals/);
       assert.match(body.html, /Open Executive Brief/);
       assert.match(body.html, /Autopilot where safe\. Human judgment where it matters\./);

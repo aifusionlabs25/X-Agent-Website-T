@@ -111,6 +111,22 @@ function SessionRow({ session }: { session: RecentSession }) {
                 </span>
             </div>
             <p className="mt-4 max-w-4xl text-sm leading-6 text-[#bcc5ba]">{brief?.tl_dr ?? "No post-session brief was stored."}</p>
+            {brief?.executive_artifact && (
+                <section className="mt-5 border-l-2 border-[#d7b46a] pl-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#d7b46a]">Executive Artifact</p>
+                    <h4 className="mt-2 text-lg font-black text-[#f6f1e6]">{brief.executive_artifact.title}</h4>
+                    <p className="mt-2 max-w-4xl text-sm leading-6 text-[#cfc6b0]">{brief.executive_artifact.summary}</p>
+                    {brief.executive_artifact.next_moves?.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                            {brief.executive_artifact.next_moves.slice(0, 3).map((move: string) => (
+                                <span key={move} className="border border-[#d7b46a]/35 bg-[#17140d] px-3 py-2 text-xs font-bold leading-5 text-[#f4e6bd]">
+                                    {move}
+                                </span>
+                            ))}
+                        </div>
+                    )}
+                </section>
+            )}
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
                 <div className="border-l border-[#d7b46a]/50 pl-3">
                     <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#8d9689]">Turns</p>
