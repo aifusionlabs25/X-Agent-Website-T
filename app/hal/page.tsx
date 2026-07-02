@@ -94,7 +94,7 @@ export default function HalPage() {
                             </div>
                         </div>
 
-                        <div className="min-w-0 border border-white/10 bg-black/25 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-sm sm:p-7">
+                        <div className="w-full min-w-0 border border-white/10 bg-black/25 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-sm sm:ml-auto sm:max-w-[650px] sm:p-7 lg:max-w-[560px] lg:justify-self-end xl:translate-x-8">
                             <div className="flex items-start justify-between gap-5 border-b border-white/10 pb-5">
                                 <div>
                                     <p className="text-xs font-black uppercase text-[#f3d68c]">What the demo proves</p>
