@@ -21,7 +21,7 @@ export default function HalDemoLauncher() {
         <>
             <button
                 onClick={() => setOpen(true)}
-                className="inline-flex min-w-[230px] items-center justify-center gap-3 bg-[#d6b56d] px-8 py-4 text-sm font-black uppercase tracking-[0.14em] text-black transition-colors hover:bg-[#f0cf86] focus:outline-none focus:ring-2 focus:ring-[#f0cf86] focus:ring-offset-2 focus:ring-offset-black"
+                className="inline-flex w-full min-w-0 items-center justify-center gap-3 bg-[#d6b56d] px-10 py-5 text-sm font-black uppercase text-black shadow-[0_18px_60px_rgba(214,181,109,0.22)] transition-colors hover:bg-[#f0cf86] focus:outline-none focus:ring-2 focus:ring-[#f0cf86] focus:ring-offset-2 focus:ring-offset-black sm:w-auto sm:min-w-[276px]"
             >
                 <Play size={18} className="fill-black" />
                 Launch Hal
