@@ -80,14 +80,11 @@ export default function HalPage() {
                                 A live Tavus-backed executive interface for founder conversations: approved knowledge in, consent memory across sessions, Hermes follow-up after the call, and a hard handoff line when judgment matters.
                             </p>
 
-                            <div className="mt-9 flex flex-wrap items-center gap-5">
+                            <div className="mt-10 flex flex-wrap items-center gap-5">
                                 <HalDemoLauncher />
-                                <p className="max-w-sm text-sm leading-6 text-zinc-300">
-                                    Launches the live Hal room with opt-in memory check-in. No private Drive files, no Brian impersonation, no false action claims.
-                                </p>
                             </div>
 
-                            <div className="mt-8 grid w-full max-w-full grid-cols-1 gap-2 sm:grid-cols-4">
+                            <div className="mt-10 grid w-full max-w-full grid-cols-1 gap-2 sm:grid-cols-4">
                                 {proofPoints.map(([label, value]) => (
                                     <div key={label} className="border-l border-[#d6b56d]/55 bg-black/25 px-4 py-3 backdrop-blur">
                                         <p className="text-xs font-black uppercase text-[#f3d68c]">{label}</p>
