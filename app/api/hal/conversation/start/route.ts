@@ -54,7 +54,7 @@ export async function POST(request: Request) {
         const requestBody = await readOptionalJsonBody(request);
 
         let memoryContext: ConversationStartMemoryContext = buildNoMemoryConversationStartContext();
-        if (areConversationStartMemoryContextGatesOpen()) {
+        if (areConversationStartMemoryContextGatesOpen(process.env, { agentSlug: HAL_AGENT_SLUG })) {
             try {
                 memoryContext = buildConversationStartMemoryContextForRequestBody(requestBody, {
                     agentSlug: HAL_AGENT_SLUG,

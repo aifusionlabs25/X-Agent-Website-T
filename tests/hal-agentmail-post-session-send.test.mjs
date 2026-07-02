@@ -8,16 +8,16 @@ import { handleTavusTranscriptionMemoryWebhook } from "../lib/xagent/tavusTransc
 
 const envOpen = {
   XAGENT_EMAIL_MEMORY_STORE_ENABLED: "true",
-  XAGENT_DANI_EMAIL_MEMORY_STORE_PILOT_ENABLED: "true",
+  XAGENT_HAL_EMAIL_MEMORY_STORE_PILOT_ENABLED: "true",
   XAGENT_EMAIL_MEMORY_STORE_KILL_SWITCH: "false",
   XAGENT_EMAIL_OUTBOUND_CONTACT_STORE_ENABLED: "true",
-  XAGENT_DANI_EMAIL_OUTBOUND_CONTACT_STORE_PILOT_ENABLED: "true",
+  XAGENT_HAL_EMAIL_OUTBOUND_CONTACT_STORE_PILOT_ENABLED: "true",
   XAGENT_EMAIL_OUTBOUND_CONTACT_STORE_KILL_SWITCH: "false",
   XAGENT_TAVUS_TRANSCRIPTION_MEMORY_WEBHOOK_ENABLED: "true",
-  XAGENT_DANI_TAVUS_TRANSCRIPTION_MEMORY_WEBHOOK_PILOT_ENABLED: "true",
+  XAGENT_HAL_TAVUS_TRANSCRIPTION_MEMORY_WEBHOOK_PILOT_ENABLED: "true",
   XAGENT_TAVUS_TRANSCRIPTION_MEMORY_WEBHOOK_KILL_SWITCH: "false",
   XAGENT_HERMES_MEMORY_OPERATOR_ENABLED: "true",
-  XAGENT_DANI_HERMES_MEMORY_OPERATOR_PILOT_ENABLED: "true",
+  XAGENT_HAL_HERMES_MEMORY_OPERATOR_PILOT_ENABLED: "true",
   XAGENT_HERMES_MEMORY_OPERATOR_KILL_SWITCH: "false",
   XAGENT_HERMES_MEMORY_OPERATOR_MODE: "embedded",
   XAGENT_HERMES_EMAIL_ACTIONS_ENABLED: "true",
@@ -204,6 +204,8 @@ assert.equal(result.agentmail_post_session_send_attempted, true);
 assert.equal(result.agentmail_message_sent, true);
 assert.equal(result.live_agentmail_called, true);
 assert.equal(result.action_claim_allowed, true);
+assert.equal(result.hermes_email_action_status_stored, true);
+assert.equal(result.hermes_email_action_status, "stored");
 assert.equal(agentMailCalls.length, 3);
 assert.equal([...redisStore.keys()].some((key) => key.includes(":hal:agentmail-send:conv_hal_agentmail_live_001")), true);
 assert.equal([...redisStore.keys()].some((key) => key.includes(":dani:agentmail-send:conv_hal_agentmail_live_001")), false);

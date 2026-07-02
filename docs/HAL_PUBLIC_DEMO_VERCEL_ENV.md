@@ -30,17 +30,20 @@ UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
 XAGENT_EMAIL_IDENTITY_SALT=
 XAGENT_TAVUS_MEMORY_CONTEXT_INJECTION_ENABLED=true
-XAGENT_DANI_TAVUS_MEMORY_CONTEXT_PILOT_ENABLED=true
+XAGENT_HAL_TAVUS_MEMORY_CONTEXT_PILOT_ENABLED=true
 XAGENT_TAVUS_MEMORY_CONTEXT_INJECTION_KILL_SWITCH=false
 XAGENT_NORMAL_SITE_MEMORY_LOOKUP_ENABLED=true
 XAGENT_DANI_NORMAL_SITE_MEMORY_LOOKUP_PILOT_ENABLED=true
 XAGENT_NORMAL_SITE_MEMORY_LOOKUP_KILL_SWITCH=false
 XAGENT_EMAIL_MEMORY_STORE_ENABLED=true
-XAGENT_DANI_EMAIL_MEMORY_STORE_PILOT_ENABLED=true
+XAGENT_HAL_EMAIL_MEMORY_STORE_PILOT_ENABLED=true
 XAGENT_EMAIL_MEMORY_STORE_KILL_SWITCH=false
+XAGENT_EMAIL_OUTBOUND_CONTACT_STORE_ENABLED=true
+XAGENT_HAL_EMAIL_OUTBOUND_CONTACT_STORE_PILOT_ENABLED=true
+XAGENT_EMAIL_OUTBOUND_CONTACT_STORE_KILL_SWITCH=false
 ```
 
-The `DANI` names above are the existing shared pilot gates. Hal separation happens in the stored identity namespace and Redis keys with `agent_slug=hal`.
+The older `DANI` pilot names remain supported as a temporary fallback for existing deployments. New Hal deployments should use the explicit `HAL` pilot names above so the setup is readable in Vercel.
 
 ## Add These For Hal AgentMail
 
@@ -52,6 +55,15 @@ XAGENT_HAL_HERMES_EMAIL_ACTIONS_PILOT_ENABLED=true
 XAGENT_HERMES_EMAIL_ACTIONS_KILL_SWITCH=false
 XAGENT_HERMES_EMAIL_ACTIONS_MODE=draft_only
 XAGENT_HERMES_EMAIL_ACTIONS_PROVIDER=agentmail
+
+XAGENT_TAVUS_TRANSCRIPTION_MEMORY_WEBHOOK_ENABLED=true
+XAGENT_HAL_TAVUS_TRANSCRIPTION_MEMORY_WEBHOOK_PILOT_ENABLED=true
+XAGENT_TAVUS_TRANSCRIPTION_MEMORY_WEBHOOK_KILL_SWITCH=false
+
+XAGENT_HERMES_MEMORY_OPERATOR_ENABLED=true
+XAGENT_HAL_HERMES_MEMORY_OPERATOR_PILOT_ENABLED=true
+XAGENT_HERMES_MEMORY_OPERATOR_KILL_SWITCH=false
+XAGENT_HERMES_MEMORY_OPERATOR_MODE=embedded
 
 XAGENT_HERMES_AGENTMAIL_ADAPTER_ENABLED=true
 XAGENT_HAL_AGENTMAIL_ADAPTER_PILOT_ENABLED=true
@@ -65,6 +77,7 @@ XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_KILL_SWITCH=false
 XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_MODE=live
 XAGENT_HAL_HERMES_EMAIL_ADMIN_RECIPIENT=
 AGENTMAIL_API_BASE_URL=https://api.agentmail.to
+XAGENT_HAL_OPERATOR_KILL_SWITCH=false
 ```
 
 Do not put `HAL_AGENTMAIL_API_KEY` in source code, docs, screenshots, or client-side `NEXT_PUBLIC_` variables. It belongs only in `.env.local` for local testing and Vercel Environment Variables for hosted deployments.
@@ -79,7 +92,8 @@ Do not put `HAL_AGENTMAIL_API_KEY` in source code, docs, screenshots, or client-
 6. End the session, wait for the Tavus transcript callback, then start again with the same email to confirm continuity.
 7. If memory works and you want real Hal email sends, add the Hal AgentMail variables to `Preview`.
 8. Run one controlled follow-up test with your own email and confirm an AgentMail receipt.
-9. Only after the preview works, copy the same Hal variables to `Production`.
+9. Check `/api/hal/runtime-readiness`; it should show `hal_hermes_active: true` when the full Hermes path is wired.
+10. Only after the preview works, copy the same Hal variables to `Production`.
 
 ## Safety Claim For Hassaan
 

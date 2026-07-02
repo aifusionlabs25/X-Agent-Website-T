@@ -14,6 +14,8 @@ assert.equal(closed.xagent_session_identity_supported, true);
 assert.equal(closed.memory_context_injection_code_present, true);
 assert.equal(closed.tavus_conversational_context_supported, true);
 assert.equal(closed.memory_context_env_gates_open, false);
+assert.equal(closed.tavus_transcription_memory_webhook_code_present, true);
+assert.equal(closed.tavus_transcription_memory_webhook_env_gates_open, false);
 assert.equal(closed.hermes_memory_operator_code_present, true);
 assert.equal(closed.hermes_memory_operator_env_gates_open, false);
 assert.equal(closed.hermes_memory_operator_mode, "embedded");
@@ -27,6 +29,11 @@ assert.equal(closed.hermes_email_actions_live_send_enabled, false);
 assert.equal(closed.hermes_email_calendly_cta_code_present, true);
 assert.equal(closed.hermes_email_calendly_cta_configured, false);
 assert.equal(closed.email_outbound_contact_store_env_gates_open, false);
+assert.equal(closed.hal_operator_store_code_present, true);
+assert.equal(closed.hal_operator_store_env_gates_open, false);
+assert.equal(closed.hal_hermes_active, false);
+assert.equal(closed.hal_hermes_active_status, "not_hal");
+assert.equal(closed.hal_hermes_active_gates, undefined);
 assert.equal(closed.agentmail_adapter_code_present, true);
 assert.equal(closed.agentmail_adapter_env_gates_open, false);
 assert.equal(closed.agentmail_inbox_address_configured, false);
@@ -86,6 +93,7 @@ const open = buildXAgentRuntimeReadiness({
   now: "2026-06-19T19:00:00.000Z",
 });
 assert.equal(open.memory_context_env_gates_open, true);
+assert.equal(open.tavus_transcription_memory_webhook_env_gates_open, false);
 assert.equal(open.hermes_memory_operator_env_gates_open, true);
 assert.equal(open.hermes_memory_operator_mode, "embedded");
 assert.equal(open.hermes_memory_operator_gateway_live_calls_enabled, false);
@@ -97,6 +105,9 @@ assert.equal(open.hermes_email_actions_live_send_enabled, false);
 assert.equal(open.hermes_email_calendly_cta_code_present, true);
 assert.equal(open.hermes_email_calendly_cta_configured, true);
 assert.equal(open.email_outbound_contact_store_env_gates_open, true);
+assert.equal(open.hal_operator_store_env_gates_open, false);
+assert.equal(open.hal_hermes_active, false);
+assert.equal(open.hal_hermes_active_status, "not_hal");
 assert.equal(open.agentmail_adapter_env_gates_open, true);
 assert.equal(open.agentmail_inbox_address_configured, true);
 assert.equal(open.agentmail_inbox_matches_dani, true);
@@ -176,7 +187,7 @@ const halAgentMailLiveRequested = buildXAgentRuntimeReadiness({
     XAGENT_HAL_AGENTMAIL_ADAPTER_PILOT_ENABLED: "true",
     XAGENT_HERMES_AGENTMAIL_ADAPTER_KILL_SWITCH: "false",
     XAGENT_HAL_AGENTMAIL_ADDRESS: "hermes-hal@agentmail.to",
-    HAL_AGENTMAIL_API_KEY: "am_us_hal_runtime_test_secret",
+    HAL_AGENTMAIL_API_KEY: "unit-test-agentmail-key",
     XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_ENABLED: "true",
     XAGENT_HAL_AGENTMAIL_SEND_ADAPTER_PILOT_ENABLED: "true",
     XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_KILL_SWITCH: "false",
@@ -200,8 +211,76 @@ assert.equal(halAgentMailLiveRequested.agentmail_send_adapter_live_mode_requeste
 assert.equal(halAgentMailLiveRequested.agentmail_send_adapter_ready_for_t49_one_send_test, true);
 assert.equal(halAgentMailLiveRequested.agentmail_live_calls_enabled, true);
 assert.equal(halAgentMailLiveRequested.agentmail_admin_recipient_configured, true);
+assert.equal(halAgentMailLiveRequested.hal_hermes_active, false);
+assert.equal(halAgentMailLiveRequested.hal_hermes_active_status, "missing_required_gates");
+assert.equal(halAgentMailLiveRequested.hal_hermes_active_gates.tavus_memory_context, false);
+assert.equal(halAgentMailLiveRequested.hal_hermes_active_gates.tavus_transcription_webhook, false);
+assert.equal(halAgentMailLiveRequested.hal_hermes_active_gates.hermes_memory_operator, false);
+assert.equal(halAgentMailLiveRequested.hal_hermes_active_gates.hermes_email_actions, true);
+assert.equal(halAgentMailLiveRequested.hal_hermes_active_gates.agentmail_live_send_adapter, true);
 
-const unsafeSerialized = JSON.stringify([open, halAgentMailLiveRequested]);
+const halHermesActive = buildXAgentRuntimeReadiness({
+  agentSlug: "hal",
+  env: {
+    XAGENT_TAVUS_MEMORY_CONTEXT_INJECTION_ENABLED: "true",
+    XAGENT_HAL_TAVUS_MEMORY_CONTEXT_PILOT_ENABLED: "true",
+    XAGENT_TAVUS_MEMORY_CONTEXT_INJECTION_KILL_SWITCH: "false",
+    XAGENT_EMAIL_MEMORY_STORE_ENABLED: "true",
+    XAGENT_HAL_EMAIL_MEMORY_STORE_PILOT_ENABLED: "true",
+    XAGENT_EMAIL_MEMORY_STORE_KILL_SWITCH: "false",
+    XAGENT_EMAIL_OUTBOUND_CONTACT_STORE_ENABLED: "true",
+    XAGENT_HAL_EMAIL_OUTBOUND_CONTACT_STORE_PILOT_ENABLED: "true",
+    XAGENT_EMAIL_OUTBOUND_CONTACT_STORE_KILL_SWITCH: "false",
+    XAGENT_TAVUS_TRANSCRIPTION_MEMORY_WEBHOOK_ENABLED: "true",
+    XAGENT_HAL_TAVUS_TRANSCRIPTION_MEMORY_WEBHOOK_PILOT_ENABLED: "true",
+    XAGENT_TAVUS_TRANSCRIPTION_MEMORY_WEBHOOK_KILL_SWITCH: "false",
+    XAGENT_HERMES_MEMORY_OPERATOR_ENABLED: "true",
+    XAGENT_HAL_HERMES_MEMORY_OPERATOR_PILOT_ENABLED: "true",
+    XAGENT_HERMES_MEMORY_OPERATOR_KILL_SWITCH: "false",
+    XAGENT_HERMES_MEMORY_OPERATOR_MODE: "embedded",
+    XAGENT_HERMES_EMAIL_ACTIONS_ENABLED: "true",
+    XAGENT_HAL_HERMES_EMAIL_ACTIONS_PILOT_ENABLED: "true",
+    XAGENT_HERMES_EMAIL_ACTIONS_KILL_SWITCH: "false",
+    XAGENT_HERMES_EMAIL_ACTIONS_MODE: "draft_only",
+    XAGENT_HERMES_EMAIL_ACTIONS_PROVIDER: "agentmail",
+    XAGENT_HERMES_AGENTMAIL_ADAPTER_ENABLED: "true",
+    XAGENT_HAL_AGENTMAIL_ADAPTER_PILOT_ENABLED: "true",
+    XAGENT_HERMES_AGENTMAIL_ADAPTER_KILL_SWITCH: "false",
+    XAGENT_HAL_AGENTMAIL_ADDRESS: "hermes-hal@agentmail.to",
+    HAL_AGENTMAIL_API_KEY: "unit-test-agentmail-key",
+    XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_ENABLED: "true",
+    XAGENT_HAL_AGENTMAIL_SEND_ADAPTER_PILOT_ENABLED: "true",
+    XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_KILL_SWITCH: "false",
+    XAGENT_HERMES_AGENTMAIL_SEND_ADAPTER_MODE: "live",
+    XAGENT_HAL_HERMES_EMAIL_ADMIN_RECIPIENT: "operator@example.com",
+    UPSTASH_REDIS_REST_URL: "https://unit-test-upstash.invalid",
+    UPSTASH_REDIS_REST_TOKEN: "unit-test-token",
+  },
+  now: "2026-06-19T19:00:00.000Z",
+});
+assert.equal(halHermesActive.agent_slug, "hal");
+assert.equal(halHermesActive.memory_context_env_gates_open, true);
+assert.equal(halHermesActive.tavus_transcription_memory_webhook_env_gates_open, true);
+assert.equal(halHermesActive.hermes_memory_operator_env_gates_open, true);
+assert.equal(halHermesActive.hermes_email_actions_env_gates_open, true);
+assert.equal(halHermesActive.email_outbound_contact_store_env_gates_open, true);
+assert.equal(halHermesActive.hal_operator_store_env_gates_open, true);
+assert.equal(halHermesActive.agentmail_adapter_env_gates_open, true);
+assert.equal(halHermesActive.agentmail_live_calls_enabled, true);
+assert.equal(halHermesActive.hal_hermes_active, true);
+assert.equal(halHermesActive.hal_hermes_active_status, "active");
+assert.deepEqual(halHermesActive.hal_hermes_active_gates, {
+  tavus_memory_context: true,
+  tavus_transcription_webhook: true,
+  hermes_memory_operator: true,
+  hermes_email_actions: true,
+  email_outbound_contact_store: true,
+  agentmail_adapter: true,
+  agentmail_live_send_adapter: true,
+  hal_operator_store: true,
+});
+
+const unsafeSerialized = JSON.stringify([open, halAgentMailLiveRequested, halHermesActive]);
 const forbiddenExactKeys = new Set([
   "conversation_url",
   "conversational_context",
@@ -226,8 +305,7 @@ const forbiddenSubstrings = [
   "XAGENT_HERMES_GATEWAY_URL",
   "AGENTMAIL_API_KEY",
   "HAL_AGENTMAIL_API_KEY",
-  "am_us_inbox_runtime_test_secret",
-  "am_us_hal_runtime_test_secret",
+  "unit-test-agentmail-key",
   "calendly.com",
   "Bearer ",
   "Internal continuity context",
