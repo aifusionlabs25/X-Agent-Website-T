@@ -18,8 +18,10 @@ interface Props {
 }
 
 export default function AgentThumbnail({ agent }: Props) {
+    const href = agent.liveUrl?.startsWith('/') ? agent.liveUrl : `/agents/${agent.slug}`;
+
     return (
-        <Link href={`/agents/${agent.slug}`} className="block flex-shrink-0 w-[160px] sm:w-[180px]">
+        <Link href={href} className="block flex-shrink-0 w-[160px] sm:w-[180px]">
             <motion.div
                 className="relative rounded-lg overflow-hidden cursor-pointer"
                 style={{ aspectRatio: '2/3' }}

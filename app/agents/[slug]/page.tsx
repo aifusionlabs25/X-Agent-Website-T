@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { ALL_AGENTS } from '@/lib/agents';
 import AgentDemoButton from '@/components/AgentDemoButton';
 
@@ -14,84 +14,81 @@ export function generateStaticParams() {
 
 export default async function AgentDetailPage({ params }: Props) {
     const { slug } = await params;
+
+    if (slug === 'hal') {
+        redirect('/hal');
+    }
+
     const agent = ALL_AGENTS.find((a) => a.slug === slug);
     if (!agent) notFound();
 
     return (
         <main className="min-h-screen bg-zinc-950 pt-20">
-            {/* Cinematic backdrop */}
-            <div className="relative w-full h-[50vh] overflow-hidden">
+            <div className="relative h-[50vh] w-full overflow-hidden">
                 <Image
                     src={agent.thumbnailSrc}
                     alt={agent.name}
                     fill
-                    className="object-cover object-top blur-sm scale-105 opacity-40"
+                    className="scale-105 object-cover object-top opacity-40 blur-sm"
                     sizes="100vw"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent" />
 
-                {/* Poster + info overlay */}
-                <div className="absolute bottom-0 left-0 right-0 px-8 md:px-16 pb-8 flex items-end gap-6">
-                    <div className="flex flex-col gap-3 flex-shrink-0">
+                <div className="absolute bottom-0 left-0 right-0 flex items-end gap-6 px-8 pb-8 md:px-16">
+                    <div className="flex shrink-0 flex-col gap-3">
                         <div
-                            className="relative w-28 h-40 md:w-36 md:h-52 rounded-lg overflow-hidden border-2 shadow-2xl"
+                            className="relative h-40 w-28 overflow-hidden rounded-lg border-2 shadow-2xl md:h-52 md:w-36"
                             style={{ borderColor: agent.accentColor }}
                         >
                             <Image src={agent.thumbnailSrc} alt={agent.name} fill className="object-cover" sizes="200px" />
                         </div>
 
-                        {/* Interactive Client CTA */}
                         <AgentDemoButton agent={agent} />
                     </div>
                     <div>
                         <span
-                            className="text-xs font-bold uppercase tracking-widest mb-1 block"
+                            className="mb-1 block text-xs font-bold uppercase tracking-widest"
                             style={{ color: agent.accentColor }}
                         >
                             AI Fusion Labs X Agent
                         </span>
-                        <h1 className="text-4xl md:text-6xl font-black tracking-widest text-white mb-1">
+                        <h1 className="mb-1 text-4xl font-black tracking-widest text-white md:text-6xl">
                             {agent.name}
                         </h1>
-                        <p className="text-zinc-400 text-base">{agent.role}</p>
+                        <p className="text-base text-zinc-400">{agent.role}</p>
                     </div>
                 </div>
             </div>
 
-            {/* Detail body */}
-            <div className="max-w-4xl mx-auto px-8 py-12">
-                <div className="border-b border-zinc-800 pb-8 mb-8">
-                    <h2 className="text-white text-xl font-semibold mb-3">Overview</h2>
-                    <p className="text-zinc-400 leading-relaxed">
+            <div className="mx-auto max-w-4xl px-8 py-12">
+                <div className="mb-8 border-b border-zinc-800 pb-8">
+                    <h2 className="mb-3 text-xl font-semibold text-white">Overview</h2>
+                    <p className="leading-relaxed text-zinc-400">
                         {agent.name} is a lifelike X Agent built by AI Fusion Labs. Trained on a
                         curated Knowledge Bank and powered by Tavus real-time video synthesis, {agent.name}{' '}
-                        operates as a {agent.role.toLowerCase()} — always on, never off-script.
+                        operates as a {agent.role.toLowerCase()} with clear handoff boundaries.
                     </p>
                 </div>
 
-                {/* Specs grid */}
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm mb-10">
+                <div className="mb-10 grid grid-cols-2 gap-4 text-sm md:grid-cols-3">
                     {[
                         ['Role', agent.role],
                         ['Platform', 'Tavus + OpenAI'],
                         ['Language', 'English'],
                         ['Memory', 'Knowledge Bank'],
                         ['Deployment', 'Web Embed / API'],
-                        ['Emails', '3-Email Post-Session'],
+                        ['Emails', 'Post-session follow-up'],
                     ].map(([label, value]) => (
-                        <div key={label} className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
-                            <p className="text-zinc-500 text-xs mb-1">{label}</p>
-                            <p className="text-white font-semibold">{value}</p>
+                        <div key={label} className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+                            <p className="mb-1 text-xs text-zinc-500">{label}</p>
+                            <p className="font-semibold text-white">{value}</p>
                         </div>
                     ))}
                 </div>
 
-
-                <div className="mt-6">
-                    <Link href="/#agents" className="text-zinc-500 hover:text-white text-sm transition-colors">
-                        ← Back to all agents
-                    </Link>
-                </div>
+                <Link href="/#agents" className="text-sm text-zinc-500 transition-colors hover:text-white">
+                    Back to all agents
+                </Link>
             </div>
         </main>
     );
