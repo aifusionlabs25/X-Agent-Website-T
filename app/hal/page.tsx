@@ -47,7 +47,7 @@ export default function HalPage() {
                     alt="Hal executive-autopilot concept portrait"
                     fill
                     priority
-                    className="object-cover object-[64%_center]"
+                    className="object-cover object-center"
                     sizes="100vw"
                 />
                 <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,8,7,0.97)_0%,rgba(7,8,7,0.78)_38%,rgba(7,8,7,0.34)_72%,rgba(7,8,7,0.18)_100%)]" />
@@ -94,7 +94,7 @@ export default function HalPage() {
                             </div>
                         </div>
 
-                        <div className="min-w-0 border border-white/10 bg-[#0b0d0b]/65 p-5 shadow-2xl shadow-black/35 backdrop-blur-md sm:p-7">
+                        <div className="min-w-0 border border-white/10 bg-black/25 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-sm sm:p-7">
                             <div className="flex items-start justify-between gap-5 border-b border-white/10 pb-5">
                                 <div>
                                     <p className="text-xs font-black uppercase text-[#f3d68c]">What the demo proves</p>
@@ -104,28 +104,21 @@ export default function HalPage() {
                             </div>
 
                             <div className="mt-5 grid gap-4">
-                            {capabilities.map((item) => {
-                                const Icon = item.icon;
-                                return (
-                                    <div
-                                        key={item.label}
-                                        className="grid grid-cols-[34px_1fr] gap-4 border-b border-white/10 pb-4 last:border-b-0 last:pb-0"
-                                    >
-                                        <Icon className="mt-1 text-[#f3d68c]" size={22} />
-                                        <div>
-                                            <h3 className="text-lg font-black text-white">{item.label}</h3>
-                                            <p className="mt-1 text-sm leading-6 text-zinc-300">{item.copy}</p>
+                                {capabilities.map((item) => {
+                                    const Icon = item.icon;
+                                    return (
+                                        <div
+                                            key={item.label}
+                                            className="grid grid-cols-[34px_1fr] gap-4 border-b border-white/10 pb-4 last:border-b-0 last:pb-0"
+                                        >
+                                            <Icon className="mt-1 text-[#f3d68c]" size={22} />
+                                            <div>
+                                                <h3 className="text-lg font-black text-white">{item.label}</h3>
+                                                <p className="mt-1 text-sm leading-6 text-zinc-300">{item.copy}</p>
+                                            </div>
                                         </div>
-                                    </div>
-                                );
-                            })}
-                            </div>
-
-                            <div className="mt-6 bg-[#d6b56d] px-5 py-4 text-black">
-                                <p className="text-sm font-black uppercase">Public demo boundary</p>
-                                <p className="mt-1 text-sm leading-6">
-                                    Hal is built from public or approved materials only. It does not impersonate Brian Halligan or claim completed external actions without confirmation.
-                                </p>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
