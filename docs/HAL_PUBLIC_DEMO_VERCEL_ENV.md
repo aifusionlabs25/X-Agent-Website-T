@@ -9,7 +9,7 @@ Add these in the Vercel project settings for Preview first, then Production afte
 ```env
 HAL_TAVUS_PERSONA_ID=
 HAL_TAVUS_REPLICA_ID=
-HAL_TAVUS_CUSTOM_GREETING=Hi, I am Hal. What should we think through together?
+HAL_TAVUS_CUSTOM_GREETING=Hey, I'm Hal. Good to meet you - what are you working through today and how can I assist?
 ```
 
 Optional:

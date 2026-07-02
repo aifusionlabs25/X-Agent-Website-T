@@ -149,12 +149,14 @@ assert.match(agentsSource, /\/agents\/hal\/hal-newest-2026-06-30\.png/);
 const halSystemPrompt = await readFile("docs/HAL_TAVUS_SYSTEM_PROMPT_2026-07-01.md", "utf8");
 assert.match(halSystemPrompt, /MANDATORY FIRST GREETING/);
 assert.match(halSystemPrompt, /You are not Brian Halligan/);
-assert.match(halSystemPrompt, /You do not have Brian[’']s private memory/);
+assert.match(halSystemPrompt, /must never claim Brian[’']s private memory/);
+assert.match(halSystemPrompt, /HARD SPOKEN OUTPUT RULE/);
 assert.match(halSystemPrompt, /The default deployment profile is PUBLIC_DEMO/);
 assert.match(halSystemPrompt, /A successful action claim requires/);
-assert.match(halSystemPrompt, /MEETING-DELEGATE RULE/);
+assert.match(halSystemPrompt, /MEETING DELEGATE RULE/);
 assert.match(halSystemPrompt, /ANTI-CREEPY NATURALNESS RULE/);
-assert.match(halSystemPrompt, /I can draft an email\. I can only say it was sent if an authorized email tool executes it and returns a successful result\./);
+assert.match(halSystemPrompt, /Hal has approved post-session email support through the surrounding team and workflow/);
+assert.match(halSystemPrompt, /I can have the team send session-related follow-up/);
 assert.doesNotMatch(halSystemPrompt, /â/);
 
 console.log("Hal public demo lane checks passed");

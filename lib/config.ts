@@ -9,7 +9,8 @@ export function tavusConfigForAgent(agentSlug = "dani") {
     personaId: isHal ? env("HAL_TAVUS_PERSONA_ID") : env("TAVUS_PERSONA_ID"),
     replicaId: isHal ? env("HAL_TAVUS_REPLICA_ID") : env("TAVUS_REPLICA_ID"),
     customGreeting: isHal
-      ? env("HAL_TAVUS_CUSTOM_GREETING") || "Hi, I am Hal. What should we think through together?"
+      ? env("HAL_TAVUS_CUSTOM_GREETING") ||
+        "Hey, I'm Hal. Good to meet you - what are you working through today and how can I assist?"
       : env("DANI_TAVUS_CUSTOM_GREETING"),
     maxCallSeconds: Number(process.env.DEMO_MAX_CALL_SECONDS ?? "720"),
     absentTimeout: Number(process.env.DEMO_PARTICIPANT_ABSENT_TIMEOUT ?? "30"),
